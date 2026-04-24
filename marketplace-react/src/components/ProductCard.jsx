@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function ProductCard({ product }) {
   const imageUrl =
+    product.file_url ||
     product.image ||
     product.image_url ||
     `https://picsum.photos/seed/${product.id}/400/300`;

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,6 +33,7 @@ export default function ProductDetail() {
   if (!product) return null;
 
   const imageUrl =
+    product.file_url ||
     product.image ||
     product.image_url ||
     `https://picsum.photos/seed/${product.id}/800/500`;
@@ -67,9 +70,40 @@ export default function ProductDetail() {
             </div>
           )}
 
-          <Link to="/" className="btn btn-primary">
-            Lihat Produk Lainnya
-          </Link>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <Link to="/" className="btn btn-primary">
+              Lihat Produk Lainnya
+            </Link>
+            {user?.role === "seller" && user?.id === product.user_id && (
+              <>
+                <button
+                  className="btn btn-outline"
+                  onClick={() => navigate(`/products/${product.id}/edit`)}
+                >
+                  Edit Produk
+                </button>
+                <button
+                  className="btn"
+                  style={{
+                    background: "var(--danger-bg)",
+                    color: "var(--danger)",
+                    border: "1px solid #fca5a5",
+                  }}
+                  onClick={async () => {
+                    if (!window.confirm("Yakin ingin menghapus produk ini?")) return;
+                    try {
+                      await axiosClient.delete(`/products/${product.id}`);
+                      navigate("/my-products");
+                    } catch {
+                      alert("Gagal menghapus produk");
+                    }
+                  }}
+                >
+                  Hapus Produk
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -6,6 +6,8 @@ import Register from "./pages/Register.jsx";
 import Home from "./pages/Home.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
 import Profile from "./pages/Profile.jsx";
+import MyProducts from "./pages/MyProducts.jsx";
+import ProductForm from "./pages/ProductForm.jsx";
 
 export default function App() {
   return (
@@ -37,6 +39,30 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-products"
+            element={
+              <ProtectedRoute>
+                <MyProducts />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/products/create"
+            element={
+              <ProtectedRoute>
+                <ProductForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/products/:id/edit"
+            element={
+              <ProtectedRoute>
+                <ProductForm />
               </ProtectedRoute>
             }
           />

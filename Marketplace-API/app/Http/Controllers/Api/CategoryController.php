@@ -16,9 +16,7 @@ class CategoryController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data'    => Category::withCount('products')->get(),
-            // withCount('products') = tambahkan kolom 'products_count' di response
-            // berguna untuk tampilkan "kategori ini punya X produk"
+            'data'    => Category::all(),
         ]);
     }
 

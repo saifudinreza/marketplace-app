@@ -20,6 +20,9 @@ export default function Navbar() {
           {isAuthenticated ? (
             <>
               <Link to="/">Home</Link>
+              {user?.role === "seller" && (
+                <Link to="/my-products">Kelola Produk</Link>
+              )}
               <Link to="/profile">Profile</Link>
               <span className="navbar-user">
                 Hai, {user?.name || user?.email}
