@@ -31,12 +31,13 @@ export function AuthProvider({ children }) {
     return response.data;
   };
 
-  const register = async (name, email, password, password_confirmation) => {
+  const register = async (name, email, password, password_confirmation, role) => {
     const response = await axiosClient.post("/register", {
       name,
       email,
       password,
       password_confirmation,
+      role,
     });
     return response.data;
   };

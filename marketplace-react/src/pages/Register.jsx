@@ -8,6 +8,7 @@ export default function Register() {
     email: "",
     password: "",
     password_confirmation: "",
+    role: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -37,6 +38,7 @@ export default function Register() {
         form.email,
         form.password,
         form.password_confirmation,
+        form.role,
       );
       setSuccess("Pendaftaran berhasil! Mengarahkan ke halaman login...");
       setTimeout(() => navigate("/login"), 1500);
@@ -114,6 +116,30 @@ export default function Register() {
               required
               placeholder="Ketik ulang password"
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="role">Daftar sebagai</label>
+            <select
+              id="role"
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              required
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                border: "1px solid var(--border)",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontFamily: "inherit",
+                background: "white",
+              }}
+            >
+              <option value="" disabled>-- Pilih role --</option>
+              <option value="buyer">Pembeli (Buyer)</option>
+              <option value="seller">Penjual (Seller)</option>
+            </select>
           </div>
 
           <button
