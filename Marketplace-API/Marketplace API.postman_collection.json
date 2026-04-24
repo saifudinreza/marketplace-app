@@ -1,0 +1,604 @@
+{
+    "info": {
+        "_postman_id": "c62500f1-51e5-47a3-9dd9-9945ee6751be",
+        "name": "Marketplace API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "50951096",
+        "_collection_link": "https://go.postman.co/collection/50951096-c62500f1-51e5-47a3-9dd9-9945ee6751be?source=collection_link"
+    },
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Register",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// Test 1: cek status code harus 201\r\npm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\n// Test 2: cek response punya success: true\r\npm.test(\"Response success true\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.success).to.eql(true);\r\n});\r\n\r\n// Script otomatis simpan token ke environment variable\r\n// pm.response.json() = ambil response body sebagai object JavaScript\r\n// jsonData.data.token = ambil nilai token dari response\r\n// pm.environment.set = simpan ke variabel environment yang aktif (Local)\r\nif (pm.response.code === 201) {\r\n    var jsonData = pm.response.json();\r\n    pm.environment.set(\"token\", jsonData.data.token);\r\n    console.log(\"Token berhasil disimpan:\", jsonData.data.token);\r\n}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "appliation/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"name\": \"Seller Satu\",\r\n    \"email\": \"seller@example.com\",\r\n    \"password\": \"password123\",\r\n    \"password_confirmation\": \"password123\",\r\n    \"role\": \"seller\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/register",
+                            "host": ["{{base_url}}"],
+                            "path": ["register"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"Response success true\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.success).to.eql(true);\r\n});\r\n\r\n// Script otomatis simpan token ke variabel environment\r\n// Setelah ini, {{token}} di semua request akan terisi otomatis\r\nif (pm.response.code === 200) {\r\n    var jsonData = pm.response.json();\r\n    pm.environment.set(\"token\", jsonData.data.token);\r\n    console.log(\"Token tersimpan:\", jsonData.data.token);\r\n}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"email\": \"seller@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["login"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Login Failed",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"email\": \"seller@example.com\",\r\n    \"password\": \"password salah\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["login"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Logout",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"Response success true\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.success).to.eql(true);\r\n});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"email\": \"seller@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/logout",
+                            "host": ["{{base_url}}"],
+                            "path": ["logout"]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Categories",
+            "item": [
+                {
+                    "name": "Create Category",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\npm.test(\"Response success true\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.success).to.eql(true);\r\n});\r\n\r\n// Simpan category_id otomatis untuk dipakai di Create Product\r\nif (pm.response.code === 201) {\r\n    var jsonData = pm.response.json();\r\n    pm.environment.set(\"category_id\", jsonData.data.id);\r\n    console.log(\"Category ID tersimpan:\", jsonData.data.id);\r\n}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"name\": \"UI Design\",\r\n    \"description\": \"Kategori untuk produk desain UI\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/categories",
+                            "host": ["{{base_url}}"],
+                            "path": ["categories"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Categories",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response success true\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.success).to.eql(true);\r\n});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/categories",
+                            "host": ["{{base_url}}"],
+                            "path": ["categories"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Category",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response success true\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.success).to.eql(true);",
+                                    "});",
+                                    "pm.test(\"Nama kategori berhasil diupdate\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data.name).to.eql(\"UI Design Updated\");",
+                                    "});",
+                                    "// Update category_id jika response mengembalikan id baru",
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.environment.set(\"category_id\", jsonData.data.id);",
+                                    "    console.log(\"Category ID diperbarui:\", jsonData.data.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {},
+                                "requests": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "disabled": false
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "disabled": false
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"name\": \"UI Design Updated\",\r\n    \"description\": \"Kategori untuk produk desain UI yang telah diperbarui\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/categories/{{category_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["categories", "{{category_id}}"]
+                        },
+                        "description": "Generated from cURL: curl -X PUT \"{{base_url}}/categories/{{category_id}}\" -H \"Authorization: Bearer {{token}}\" -H \"Content-Type: application/json\" -d '{\"name\": \"UI Design Updated\", \"description\": \"Kategori untuk produk desain UI yang telah diperbarui\"}'"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Category",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "disabled": false
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/categories/{{category_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["categories", "{{category_id}}"]
+                        },
+                        "description": "Generated from cURL: curl -X DELETE \"{{base_url}}/categories/{{category_id}}\" -H \"Authorization: Bearer {{token}}\""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Products",
+            "item": [
+                {
+                    "name": "Create Product",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\npm.test(\"Response success true\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.success).to.eql(true);\r\n});\r\n\r\n// Simpan ID produk untuk dipakai di request Update & Delete\r\nif (pm.response.code === 201) {\r\n    var jsonData = pm.response.json();\r\n    pm.environment.set(\"product_id\", jsonData.data.id);\r\n    console.log(\"Product ID tersimpan:\", jsonData.data.id);\r\n}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"name\": \"UI Kit Premium\",\r\n    \"price\": 150000,\r\n    \"description\": \"Paket UI Kit lengkap untuk desainer profesional\",\r\n    \"file_url\": \"https://example.com/uikit-premium.zip\",\r\n    \"category_id\": {{category_id}}\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/products",
+                            "host": ["{{base_url}}"],
+                            "path": ["products"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Products",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"Response success true\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.success).to.eql(true);\r\n});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "appilcation/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/products",
+                            "host": ["{{base_url}}"],
+                            "path": ["products"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search Products",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"Response success true\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.success).to.eql(true);\r\n});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "appilcation/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/products?search=ui",
+                            "host": ["{{base_url}}"],
+                            "path": ["products"],
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "ui"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Product",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"Response success true\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.success).to.eql(true);\r\n});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"name\": \"UI Kit Premium - Updated\",\r\n    \"price\": 175000\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/products/{{product_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["products", "{{product_id}}"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create No Token",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "appilcation/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"name\": \"Produk Tanpa Token\",\r\n    \"price\": 50000\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/products",
+                            "host": ["{{base_url}}"],
+                            "path": ["products"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Product",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code sesuai\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"Response success true\", function () {\r\n    var jsonData = pm.response.json();\r\n    pm.expect(jsonData.success).to.eql(true);\r\n});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/products/{{product_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["products", "{{product_id}}"]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [""]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [""]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": ""
+        },
+        {
+            "key": "token",
+            "value": ""
+        },
+        {
+            "key": "product_id",
+            "value": ""
+        },
+        {
+            "key": "category_id",
+            "value": ""
+        }
+    ]
+}

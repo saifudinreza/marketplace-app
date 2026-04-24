@@ -1,0 +1,7 @@
+$kind: collection
+name: Marketplace API
+variables:
+  base_url: ""
+  token: ""
+  product_id: ""
+  category_id: ""

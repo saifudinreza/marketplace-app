@@ -1,0 +1,48 @@
+$kind: http-request
+name: Create Category
+url: "{{base_url}}/categories"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"name\": \"UI Design\",\r
+
+    \    \"description\": \"Kategori untuk produk desain UI\"\r
+
+    }"
+auth:
+  credentials:
+    token: "{{token}}"
+  type: bearer
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code sesuai\", function () {\r
+
+      \    pm.response.to.have.status(201);\r
+
+      });\r
+
+      pm.test(\"Response success true\", function () {\r
+
+      \    var jsonData = pm.response.json();\r
+
+      \    pm.expect(jsonData.success).to.eql(true);\r
+
+      });\r
+
+      \r
+
+      // Simpan category_id otomatis untuk dipakai di Create Product\r
+
+      if (pm.response.code === 201) {\r
+
+      \    var jsonData = pm.response.json();\r
+
+      \    pm.environment.set(\"category_id\", jsonData.data.id);\r
+
+      \    console.log(\"Category ID tersimpan:\", jsonData.data.id);\r
+
+      }"
+    language: text/javascript
+order: 1775366701354
