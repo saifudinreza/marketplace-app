@@ -46,7 +46,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
-            'file_url' => 'nullable|url',
+            'file_url' => 'nullable|string|max:2048',
         ]);
 
         $product = Product::create([
@@ -94,7 +94,7 @@ class ProductController extends Controller
             'price'       => 'sometimes|numeric|min:0',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
-            'file_url'    => 'nullable|url',
+            'file_url'    => 'nullable|string|max:2048',
         ]);
 
         $product->update($request->only([

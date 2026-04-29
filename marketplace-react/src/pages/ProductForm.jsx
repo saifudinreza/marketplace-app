@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosClient from "../api/axiosClient.js";
+import { useFadeUp, useSlideIn } from "../hooks/useAnime.js";
+
+const FALLBACK_IMG = "https://picsum.photos/seed/default/400/300";
 
 export default function ProductForm() {
   const { id } = useParams();
@@ -18,6 +21,11 @@ export default function ProductForm() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [imgError, setImgError] = useState(false);
+
+  const leftRef = useSlideIn("left", [fetching]);
+  const rightRef = useSlideIn("right", [fetching]);
 
   useEffect(() => {
     axiosClient.get("/categories").then((res) => {
@@ -44,19 +52,29 @@ export default function ProductForm() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (e.target.name === "file_url") setImgError(false);
+  };
+
+  const formatPrice = (val) => {
+    const num = Number(val);
+    if (!val || isNaN(num)) return "";
+    return "Rp " + num.toLocaleString("id-ID");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
     try {
       if (isEdit) {
         await axiosClient.put(`/products/${id}`, form);
+        setSuccess("Produk berhasil diperbarui!");
       } else {
         await axiosClient.post("/products", form);
+        setSuccess("Produk berhasil ditambahkan!");
       }
-      navigate("/my-products");
+      setTimeout(() => navigate("/my-products"), 1200);
     } catch (err) {
       const errors = err.response?.data?.errors;
       if (errors) {
@@ -70,113 +88,201 @@ export default function ProductForm() {
     }
   };
 
+  const previewImg = form.file_url && !imgError ? form.file_url : FALLBACK_IMG;
+  const selectedCategory = categories.find((c) => String(c.id) === String(form.category_id));
+
   if (fetching) return <div className="loading">Memuat data produk...</div>;
 
   return (
-    <div style={{ maxWidth: "560px", margin: "0 auto" }}>
-      <button onClick={() => navigate("/my-products")} className="btn btn-outline btn-back">
+    <div className="product-form-wrapper">
+      <button
+        onClick={() => navigate(isEdit ? `/products/${id}` : "/my-products")}
+        className="btn btn-outline btn-back"
+      >
         ← Kembali
       </button>
 
-      <div className="auth-card" style={{ maxWidth: "100%" }}>
-        <h2>{isEdit ? "Edit Produk" : "Tambah Produk"}</h2>
-        <p className="auth-subtitle">
-          {isEdit ? "Ubah informasi produk Anda" : "Isi detail produk yang ingin dijual"}
-        </p>
+      <div className="product-form-layout">
+        {/* Kolom Kiri — Preview Gambar */}
+        <div className="product-form-preview" ref={leftRef}>
+          <div className="preview-card">
+            <div className="preview-img-wrapper">
+              <img
+                src={previewImg}
+                alt="Preview produk"
+                className="preview-img"
+                onError={() => setImgError(true)}
+              />
+              {!form.file_url && (
+                <div className="preview-img-overlay">
+                  <span>📷</span>
+                  <p>Preview gambar muncul di sini</p>
+                </div>
+              )}
+            </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">Nama Produk</label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              value={form.name}
-              onChange={handleChange}
-              required
-              placeholder="Nama produk"
-            />
+            <div className="preview-info">
+              <h3 className="preview-name">
+                {form.name || <span className="preview-placeholder">Nama Produk</span>}
+              </h3>
+              <p className="preview-price">
+                {form.price
+                  ? formatPrice(form.price)
+                  : <span className="preview-placeholder">Rp 0</span>}
+              </p>
+              {selectedCategory && (
+                <span className="product-card-category">{selectedCategory.name}</span>
+              )}
+              <p className="preview-desc">
+                {form.description || <span className="preview-placeholder">Deskripsi produk...</span>}
+              </p>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="price">Harga (Rp)</label>
-            <input
-              id="price"
-              name="price"
-              type="number"
-              min="0"
-              value={form.price}
-              onChange={handleChange}
-              required
-              placeholder="Contoh: 50000"
-            />
-          </div>
+          <p className="preview-hint">* Preview tampilan produk di marketplace</p>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="category_id">Kategori</label>
-            <select
-              id="category_id"
-              name="category_id"
-              value={form.category_id}
-              onChange={handleChange}
-              required
-              style={selectStyle}
-            >
-              <option value="" disabled>-- Pilih kategori --</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Kolom Kanan — Form */}
+        <div className="product-form-fields" ref={rightRef}>
+          <div className="product-form-card">
+            <div className="product-form-header">
+              <div className="product-form-icon">{isEdit ? "✏️" : "📦"}</div>
+              <div>
+                <h2>{isEdit ? "Edit Produk" : "Tambah Produk Baru"}</h2>
+                <p className="auth-subtitle">
+                  {isEdit ? "Perbarui informasi produk Anda" : "Isi detail produk yang ingin dijual"}
+                </p>
+              </div>
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="description">Deskripsi</label>
-            <textarea
-              id="description"
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Contoh: Laptop gaming dengan prosesor Intel Core i7, RAM 16GB, SSD 512GB. Cocok untuk bekerja dan bermain game."
-              rows={4}
-              style={{ ...selectStyle, resize: "vertical" }}
-            />
-          </div>
+            {error && <div className="alert alert-error">{error}</div>}
+            {success && <div className="alert alert-success">✅ {success}</div>}
 
-          <div className="form-group">
-            <label htmlFor="file_url">URL Gambar (opsional)</label>
-            <input
-              id="file_url"
-              name="file_url"
-              type="url"
-              value={form.file_url}
-              onChange={handleChange}
-              placeholder="Contoh: https://picsum.photos/seed/produk1/400/300"
-            />
-          </div>
+            <form onSubmit={handleSubmit}>
+              {/* Nama Produk */}
+              <div className="form-group">
+                <label htmlFor="name">
+                  Nama Produk <span className="required-star">*</span>
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={form.name}
+                  onChange={handleChange}
+                  required
+                  maxLength={255}
+                  placeholder="Contoh: Laptop Gaming ASUS ROG"
+                />
+                <span className="field-hint">{form.name.length}/255 karakter</span>
+              </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-block"
-            disabled={loading}
-          >
-            {loading ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Tambah Produk"}
-          </button>
-        </form>
+              {/* Harga */}
+              <div className="form-group">
+                <label htmlFor="price">
+                  Harga <span className="required-star">*</span>
+                </label>
+                <div className="input-prefix-wrapper">
+                  <span className="input-prefix">Rp</span>
+                  <input
+                    id="price"
+                    name="price"
+                    type="number"
+                    min="0"
+                    value={form.price}
+                    onChange={handleChange}
+                    required
+                    placeholder="0"
+                    className="input-with-prefix"
+                  />
+                </div>
+                {form.price && (
+                  <span className="field-hint">
+                    = {formatPrice(form.price)}
+                  </span>
+                )}
+              </div>
+
+              {/* Kategori */}
+              <div className="form-group">
+                <label htmlFor="category_id">
+                  Kategori <span className="required-star">*</span>
+                </label>
+                <select
+                  id="category_id"
+                  name="category_id"
+                  value={form.category_id}
+                  onChange={handleChange}
+                  required
+                  className="form-select"
+                >
+                  <option value="" disabled>-- Pilih kategori --</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Deskripsi */}
+              <div className="form-group">
+                <label htmlFor="description">Deskripsi</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  placeholder="Jelaskan produk Anda secara detail: bahan, ukuran, kondisi, keunggulan, dll."
+                  rows={4}
+                  className="form-textarea"
+                />
+                <span className="field-hint">{form.description.length} karakter</span>
+              </div>
+
+              {/* URL Gambar */}
+              <div className="form-group">
+                <label htmlFor="file_url">URL Gambar</label>
+                <input
+                  id="file_url"
+                  name="file_url"
+                  type="url"
+                  value={form.file_url}
+                  onChange={handleChange}
+                  placeholder="https://contoh.com/gambar-produk.jpg"
+                />
+                <span className="field-hint">
+                  Kosongkan jika tidak ada gambar · Gunakan link gambar yang valid
+                </span>
+              </div>
+
+              {/* Tombol */}
+              <div className="product-form-actions">
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => navigate(isEdit ? `/products/${id}` : "/my-products")}
+                  disabled={loading}
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                  style={{ flex: 1 }}
+                >
+                  {loading
+                    ? "Menyimpan..."
+                    : isEdit
+                    ? "💾 Simpan Perubahan"
+                    : "🚀 Tambah Produk"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-const selectStyle = {
-  width: "100%",
-  padding: "10px 12px",
-  border: "1px solid var(--border)",
-  borderRadius: "8px",
-  fontSize: "14px",
-  fontFamily: "inherit",
-  background: "white",
-};
