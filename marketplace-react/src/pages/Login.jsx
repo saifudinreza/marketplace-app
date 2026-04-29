@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useScaleIn, useStaggerChildren } from "../hooks/useAnime.js";
 
 export default function Login() {
+  const cardRef = useScaleIn([]);
+  const formRef = useStaggerChildren(".form-group, button[type='submit']", []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -31,13 +34,13 @@ export default function Login() {
 
   return (
     <div className="auth-wrapper">
-      <div className="auth-card">
+      <div className="auth-card" ref={cardRef}>
         <h2>Login</h2>
         <p className="auth-subtitle">Masuk ke akun marketplace-mu</p>
 
         {error && <div className="alert alert-error">{error}</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} ref={formRef}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input

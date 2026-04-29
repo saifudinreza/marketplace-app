@@ -6,6 +6,21 @@
   padding: 0;
 }
 
+/* ANIMATION INITIAL STATES (anime.js akan animate dari state ini) */
+.product-grid .product-card,
+.auth-card,
+.auth-card .form-group,
+.auth-card button[type="submit"],
+.detail-card,
+.detail-body,
+.home-header,
+.navbar-brand,
+.navbar-links a,
+.navbar-links button,
+.navbar-links span {
+  opacity: 0;
+}
+
 :root {
   --primary: #2563eb;
   --primary-dark: #1e40af;

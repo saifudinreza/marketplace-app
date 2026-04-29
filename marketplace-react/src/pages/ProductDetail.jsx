@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useScaleIn, useFadeUp } from "../hooks/useAnime.js";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -11,6 +12,9 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const cardRef = useScaleIn([loading, product?.id]);
+  const bodyRef = useFadeUp([loading, product?.id]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -44,10 +48,10 @@ export default function ProductDetail() {
         ← Kembali
       </button>
 
-      <div className="detail-card">
+      <div className="detail-card" ref={cardRef}>
         <img src={imageUrl} alt={product.name} className="detail-image" />
 
-        <div className="detail-body">
+        <div className="detail-body" ref={bodyRef}>
           <h1>{product.name}</h1>
 
           {product.category?.name && (

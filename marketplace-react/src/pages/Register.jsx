@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useScaleIn, useStaggerChildren } from "../hooks/useAnime.js";
 
 export default function Register() {
+  const cardRef = useScaleIn([]);
+  const formRef = useStaggerChildren(".form-group, button[type='submit']", []);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -57,14 +60,14 @@ export default function Register() {
 
   return (
     <div className="auth-wrapper">
-      <div className="auth-card">
+      <div className="auth-card" ref={cardRef}>
         <h2>Register</h2>
         <p className="auth-subtitle">Buat akun marketplace baru</p>
 
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} ref={formRef}>
           <div className="form-group">
             <label htmlFor="name">Nama</label>
             <input
