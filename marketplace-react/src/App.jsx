@@ -9,6 +9,7 @@ import Profile from "./pages/Profile.jsx";
 import MyProducts from "./pages/MyProducts.jsx";
 import ProductForm from "./pages/ProductForm.jsx";
 import Prototype from "./pages/Prototype.jsx";
+import Cart from "./pages/Cart.jsx";
 
 export default function App() {
   return (
@@ -68,6 +69,7 @@ export default function App() {
             }
           />
 
+          <Route path="/cart" element={<Cart />} />
           <Route path="/prototype" element={<Prototype />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
