@@ -249,10 +249,10 @@ export default function ProductForm() {
                 <input
                   id="file_url"
                   name="file_url"
-                  type="url"
+                  type="text"
                   value={form.file_url}
                   onChange={handleChange}
-                  placeholder="https://contoh.com/gambar-produk.jpg"
+                  placeholder="https://contoh.com/gambar.jpg atau data:image/jpeg;base64,..."
                 />
                 <span className="field-hint">
                   Kosongkan jika tidak ada gambar · Gunakan link gambar yang valid
