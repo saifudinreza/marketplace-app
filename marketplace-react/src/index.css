@@ -424,6 +424,25 @@ a:hover {
   color: #fff;
   border-color: var(--primary);
 }
+.zf-seller-btn {
+  background: var(--accent-light);
+  color: var(--secondary);
+  border: 1.5px solid var(--accent);
+  border-radius: 4px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.zf-seller-btn:hover {
+  background: var(--secondary);
+  color: #fff;
+  border-color: var(--secondary);
+  text-decoration: none;
+}
 
 /* Category pill bar */
 .zf-cat-bar {

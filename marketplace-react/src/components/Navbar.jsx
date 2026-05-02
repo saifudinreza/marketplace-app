@@ -256,6 +256,11 @@ export default function Navbar() {
 
           {isAuthenticated ? (
             <div className="zf-user-area">
+              {user?.role === "seller" && (
+                <Link to="/my-products" className="zf-seller-btn">
+                  Produk Saya
+                </Link>
+              )}
               <Link to="/profile" className="zf-user-link">
                 Hai, {user?.name?.split(" ")[0] || "User"}
               </Link>

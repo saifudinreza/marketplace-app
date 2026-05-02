@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Navigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient.js";
 import { useFadeUp, useSlideIn } from "../hooks/useAnime.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const FALLBACK_IMG = "https://picsum.photos/seed/default/400/300";
 
 export default function ProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isEdit = Boolean(id);
 
   const [form, setForm] = useState({
@@ -91,6 +93,7 @@ export default function ProductForm() {
   const previewImg = form.file_url && !imgError ? form.file_url : FALLBACK_IMG;
   const selectedCategory = categories.find((c) => String(c.id) === String(form.category_id));
 
+  if (user?.role !== "seller") return <Navigate to="/" replace />;
   if (fetching) return <div className="loading">Memuat data produk...</div>;
 
   return (

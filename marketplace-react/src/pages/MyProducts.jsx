@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -42,6 +42,7 @@ export default function MyProducts() {
     }
   };
 
+  if (user?.role !== "seller") return <Navigate to="/" replace />;
   if (loading) return <div className="loading">Memuat produk...</div>;
 
   return (
