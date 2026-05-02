@@ -1,38 +1,32 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axiosClient from "../api/axiosClient.js";
 import ProductCard from "../components/ProductCard.jsx";
 import Pagination from "../components/Pagination.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
+const CAT_ICONS = {
+  "Elektronik": "💻",
+  "Fashion": "👗",
+  "Makanan & Minuman": "🍔",
+  "Peralatan Rumah": "🏠",
+  "Olahraga": "⚽",
+  "Buku & Pendidikan": "📚",
+  "Kecantikan & Kesehatan": "💄",
+  "Otomotif": "🚗",
+};
+
 const ITEMS_PER_PAGE = 8;
 
 const VOUCHERS = [
-  {
-    id: 1,
-    title: "Diskon 25rb",
-    desc: "Min. belanja 150rb",
-    color: "v1",
-    icon: "🎟️",
-  },
-  {
-    id: 2,
-    title: "Gratis Ongkir",
-    desc: "Semua produk elektronik",
-    color: "v2",
-    icon: "🚚",
-  },
-  {
-    id: 3,
-    title: "Cashback 10%",
-    desc: "Khusus member baru",
-    color: "v3",
-    icon: "💰",
-  },
+  { id: 1, title: "Diskon 25rb",   desc: "Min. belanja 150rb",        color: "v1", icon: "🎟️" },
+  { id: 2, title: "Gratis Ongkir", desc: "Semua produk elektronik",   color: "v2", icon: "🚚" },
+  { id: 3, title: "Cashback 10%",  desc: "Khusus member baru",        color: "v3", icon: "💰" },
 ];
 
 export default function Home() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const [products, setProducts] = useState([]);
@@ -57,7 +51,7 @@ export default function Home() {
         const catList = catRes.data?.data ?? catRes.data ?? [];
         setProducts(Array.isArray(prodList) ? prodList : []);
         setCategories(Array.isArray(catList) ? catList : []);
-      } catch (err) {
+      } catch {
         setError("Gagal memuat data. Pastikan API jalan di localhost:8000");
       } finally {
         setLoading(false);
@@ -66,9 +60,10 @@ export default function Home() {
     fetchAll();
   }, []);
 
-  useEffect(() => {
+  const handleCatClick = (catId) => {
     setCurrentPage(1);
-  }, [search, catFilter]);
+    navigate(catId ? `/?category=${catId}` : "/");
+  };
 
   const banners = products.slice(0, 3);
 
@@ -91,8 +86,9 @@ export default function Home() {
     return matchSearch && matchCat;
   });
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+  const safePage = Math.min(currentPage, totalPages);
+  const startIdx = (safePage - 1) * ITEMS_PER_PAGE;
   const paginated = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
   const activeCatName = catFilter
@@ -144,9 +140,7 @@ export default function Home() {
                 type="button"
                 className="zf-nav-arrow left"
                 onClick={() =>
-                  setBannerIdx(
-                    (i) => (i - 1 + banners.length) % banners.length,
-                  )
+                  setBannerIdx((i) => (i - 1 + banners.length) % banners.length)
                 }
               >
                 ‹
@@ -154,9 +148,7 @@ export default function Home() {
               <button
                 type="button"
                 className="zf-nav-arrow right"
-                onClick={() =>
-                  setBannerIdx((i) => (i + 1) % banners.length)
-                }
+                onClick={() => setBannerIdx((i) => (i + 1) % banners.length)}
               >
                 ›
               </button>
@@ -183,21 +175,28 @@ export default function Home() {
             Kategori <span>Produk</span>
           </div>
           <div className="zf-cats">
-            {categories.map((c, i) => (
-              <Link
+            {/* Tombol Semua */}
+            <button
+              type="button"
+              className={`zf-cat-item ${!catFilter ? "active" : ""}`}
+              onClick={() => handleCatClick(null)}
+            >
+              <div className="zf-cat-icon pink">🛍️</div>
+              <span className="zf-cat-label">Semua</span>
+            </button>
+
+            {categories.map((c) => (
+              <button
                 key={c.id}
-                to={`/?category=${c.id}`}
-                className="zf-cat-item"
+                type="button"
+                className={`zf-cat-item ${String(c.id) === catFilter ? "active" : ""}`}
+                onClick={() => handleCatClick(c.id)}
               >
-                <div
-                  className={`zf-cat-icon ${
-                    i % 2 === 0 ? "pink" : "purple"
-                  }`}
-                >
-                  {(c.name?.[0] || "?").toUpperCase()}
+                <div className="zf-cat-icon pink">
+                  {CAT_ICONS[c.name] ?? "🏷️"}
                 </div>
                 <span className="zf-cat-label">{c.name}</span>
-              </Link>
+              </button>
             ))}
           </div>
         </div>
@@ -229,7 +228,7 @@ export default function Home() {
             {search
               ? `Hasil "${search}"`
               : activeCatName
-                ? `Kategori: ${activeCatName}`
+                ? `${CAT_ICONS[activeCatName] ?? ""} ${activeCatName}`
                 : "Produk Terlaris"}
           </div>
           {user?.role === "seller" && (
@@ -240,8 +239,8 @@ export default function Home() {
         </div>
 
         <div className="zf-section-sub">
-          Menampilkan {filtered.length} produk · Halaman {currentPage} dari{" "}
-          {totalPages || 1}
+          Menampilkan {filtered.length} produk · Halaman {safePage} dari{" "}
+          {totalPages}
         </div>
 
         {error && <div className="alert alert-error">{error}</div>}
@@ -271,7 +270,7 @@ export default function Home() {
             </div>
 
             <Pagination
-              currentPage={currentPage}
+              currentPage={safePage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
             />
