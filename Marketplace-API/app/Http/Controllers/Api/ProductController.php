@@ -46,11 +46,11 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
-            'file_url' => 'nullable|string|max:2048',
+            'file_url' => 'nullable|string',
         ]);
 
         $product = Product::create([
-            'user_id'     => $request->user()->id, // otomatis isi dengan ID seller yang login
+            'user_id'     => $request->user()->id,
             'category_id' => $request->category_id,
             'name'        => $request->name,
             'slug'        => Str::slug($request->name) . '-' . time(),
@@ -94,7 +94,7 @@ class ProductController extends Controller
             'price'       => 'sometimes|numeric|min:0',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
-            'file_url'    => 'nullable|string|max:2048',
+            'file_url'    => 'nullable|string',
         ]);
 
         $product->update($request->only([
