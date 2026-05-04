@@ -12,13 +12,7 @@ export default function ProductForm() {
   const { user } = useAuth();
   const isEdit = Boolean(id);
 
-  const [form, setForm] = useState({
-    name: "",
-    price: "",
-    description: "",
-    category_id: "",
-    file_url: "",
-  });
+  const [form, setForm] = useState({ name: "", price: "", description: "", category_id: "", file_url: "" });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
@@ -30,22 +24,12 @@ export default function ProductForm() {
   const rightRef = useSlideIn("right", [fetching]);
 
   useEffect(() => {
-    axiosClient.get("/categories").then((res) => {
-      setCategories(res.data?.data ?? res.data ?? []);
-    });
-
+    axiosClient.get("/categories").then((res) => setCategories(res.data?.data ?? res.data ?? []));
     if (isEdit) {
-      axiosClient
-        .get(`/products/${id}`)
+      axiosClient.get(`/products/${id}`)
         .then((res) => {
           const p = res.data?.data ?? res.data;
-          setForm({
-            name: p.name ?? "",
-            price: p.price ?? "",
-            description: p.description ?? "",
-            category_id: p.category_id ?? "",
-            file_url: p.file_url ?? "",
-          });
+          setForm({ name: p.name ?? "", price: p.price ?? "", description: p.description ?? "", category_id: p.category_id ?? "", file_url: p.file_url ?? "" });
         })
         .catch(() => setError("Produk tidak ditemukan"))
         .finally(() => setFetching(false));
@@ -65,26 +49,15 @@ export default function ProductForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-    setLoading(true);
+    setError(""); setSuccess(""); setLoading(true);
     try {
-      if (isEdit) {
-        await axiosClient.put(`/products/${id}`, form);
-        setSuccess("Produk berhasil diperbarui!");
-      } else {
-        await axiosClient.post("/products", form);
-        setSuccess("Produk berhasil ditambahkan!");
-      }
+      if (isEdit) { await axiosClient.put(`/products/${id}`, form); setSuccess("Produk berhasil diperbarui!"); }
+      else { await axiosClient.post("/products", form); setSuccess("Produk berhasil ditambahkan!"); }
       setTimeout(() => navigate("/my-products"), 1200);
     } catch (err) {
       const errors = err.response?.data?.errors;
-      if (errors) {
-        const firstKey = Object.keys(errors)[0];
-        setError(errors[firstKey][0]);
-      } else {
-        setError(err.response?.data?.message || "Gagal menyimpan produk");
-      }
+      if (errors) setError(errors[Object.keys(errors)[0]][0]);
+      else setError(err.response?.data?.message || "Gagal menyimpan produk");
     } finally {
       setLoading(false);
     }
@@ -94,176 +67,130 @@ export default function ProductForm() {
   const selectedCategory = categories.find((c) => String(c.id) === String(form.category_id));
 
   if (user?.role !== "seller") return <Navigate to="/" replace />;
-  if (fetching) return <div className="loading">Memuat data produk...</div>;
+  if (fetching) return <div className="text-center py-[70px] text-muted">Memuat data produk...</div>;
+
+  const inputClass = "w-full px-3.5 py-[11px] border border-line rounded-[6px] text-sm bg-page transition-[border-color,box-shadow,background] duration-200 focus:outline-none focus:border-secondary focus:shadow-[0_0_0_3px_rgba(139,111,71,0.1)] focus:bg-white placeholder:text-[#bbb8b3]";
+  const labelClass = "block mb-[7px] font-bold text-[13px] text-primary tracking-[0.2px]";
 
   return (
-    <div className="product-form-wrapper">
+    <div className="max-w-[1000px] mx-auto">
       <button
         onClick={() => navigate(isEdit ? `/products/${id}` : "/my-products")}
-        className="btn btn-outline btn-back"
+        className="mb-[18px] inline-block px-5 py-2.5 rounded-[6px] border border-line text-[13px] font-bold cursor-pointer transition-all duration-200 bg-transparent text-primary hover:bg-page hover:border-secondary hover:text-secondary"
       >
         ← Kembali
       </button>
 
-      <div className="product-form-layout">
-        {/* Kolom Kiri — Preview Gambar */}
-        <div className="product-form-preview" ref={leftRef}>
-          <div className="preview-card">
-            <div className="preview-img-wrapper">
+      <div className="grid grid-cols-[1fr_1.4fr] gap-[26px] items-start max-[640px]:grid-cols-1">
+
+        {/* Preview */}
+        <div className="sticky top-[90px]" ref={leftRef}>
+          <div className="bg-white rounded-[10px] shadow-[0_2px_24px_rgba(28,28,28,0.07)] overflow-hidden border border-line">
+            <div className="relative w-full h-[200px] bg-cream">
               <img
                 src={previewImg}
                 alt="Preview produk"
-                className="preview-img"
+                className="w-full h-full object-cover"
                 onError={() => setImgError(true)}
               />
               {!form.file_url && (
-                <div className="preview-img-overlay">
-                  <span>📷</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-cream text-muted text-[13px]">
+                  <span className="text-[32px]">📷</span>
                   <p>Preview gambar muncul di sini</p>
                 </div>
               )}
             </div>
-
-            <div className="preview-info">
-              <h3 className="preview-name">
-                {form.name || <span className="preview-placeholder">Nama Produk</span>}
+            <div className="p-[18px]">
+              <h3 className="text-base font-bold mb-1.5 tracking-[-0.2px]">
+                {form.name || <span className="text-line italic">Nama Produk</span>}
               </h3>
-              <p className="preview-price">
-                {form.price
-                  ? formatPrice(form.price)
-                  : <span className="preview-placeholder">Rp 0</span>}
+              <p className="text-lg font-extrabold text-primary mb-2">
+                {form.price ? formatPrice(form.price) : <span className="text-line italic">Rp 0</span>}
               </p>
               {selectedCategory && (
-                <span className="product-card-category">{selectedCategory.name}</span>
+                <span className="text-[10px] text-secondary bg-cream px-2 py-0.5 rounded font-semibold">{selectedCategory.name}</span>
               )}
-              <p className="preview-desc">
-                {form.description || <span className="preview-placeholder">Deskripsi produk...</span>}
+              <p className="text-[13px] text-muted mt-2.5 leading-[1.5] line-clamp-3">
+                {form.description || <span className="text-line italic">Deskripsi produk...</span>}
               </p>
             </div>
           </div>
-
-          <p className="preview-hint">* Preview tampilan produk di marketplace</p>
+          <p className="text-center text-xs text-muted mt-2.5">* Preview tampilan produk di marketplace</p>
         </div>
 
-        {/* Kolom Kanan — Form */}
-        <div className="product-form-fields" ref={rightRef}>
-          <div className="product-form-card">
-            <div className="product-form-header">
-              <div className="product-form-icon">{isEdit ? "✏️" : "📦"}</div>
+        {/* Form */}
+        <div ref={rightRef}>
+          <div className="bg-white rounded-[10px] shadow-[0_2px_24px_rgba(28,28,28,0.07)] p-[30px] border border-line">
+            <div className="flex items-center gap-3.5 mb-[26px] pb-[22px] border-b border-line">
+              <div className="text-[32px] shrink-0">{isEdit ? "✏️" : "📦"}</div>
               <div>
-                <h2>{isEdit ? "Edit Produk" : "Tambah Produk Baru"}</h2>
-                <p className="auth-subtitle">
-                  {isEdit ? "Perbarui informasi produk Anda" : "Isi detail produk yang ingin dijual"}
-                </p>
+                <h2 className="text-xl font-extrabold tracking-[-0.3px] mb-0.5">{isEdit ? "Edit Produk" : "Tambah Produk Baru"}</h2>
+                <p className="text-sm text-muted">{isEdit ? "Perbarui informasi produk Anda" : "Isi detail produk yang ingin dijual"}</p>
               </div>
             </div>
 
-            {error && <div className="alert alert-error">{error}</div>}
-            {success && <div className="alert alert-success">✅ {success}</div>}
+            {error && <div className="px-4 py-3 rounded-[6px] mb-4 text-[13px] font-medium bg-red-50 text-red-700 border border-red-200">{error}</div>}
+            {success && <div className="px-4 py-3 rounded-[6px] mb-4 text-[13px] font-medium bg-green-50 text-green-700 border border-green-200">✅ {success}</div>}
 
             <form onSubmit={handleSubmit}>
-              {/* Nama Produk */}
-              <div className="form-group">
-                <label htmlFor="name">
-                  Nama Produk <span className="required-star">*</span>
+              <div className="mb-[18px]">
+                <label htmlFor="name" className={labelClass}>
+                  Nama Produk <span className="text-red-600 ml-0.5">*</span>
                 </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={form.name}
-                  onChange={handleChange}
-                  required
-                  maxLength={255}
-                  placeholder="Contoh: Laptop Gaming ASUS ROG"
-                />
-                <span className="field-hint">{form.name.length}/255 karakter</span>
+                <input id="name" name="name" type="text" value={form.name} onChange={handleChange} required maxLength={255} placeholder="Contoh: Laptop Gaming ASUS ROG" className={inputClass} />
+                <span className="block text-xs text-muted mt-[5px]">{form.name.length}/255 karakter</span>
               </div>
 
-              {/* Harga */}
-              <div className="form-group">
-                <label htmlFor="price">
-                  Harga <span className="required-star">*</span>
+              <div className="mb-[18px]">
+                <label htmlFor="price" className={labelClass}>
+                  Harga <span className="text-red-600 ml-0.5">*</span>
                 </label>
-                <div className="input-prefix-wrapper">
-                  <span className="input-prefix">Rp</span>
+                <div className="flex items-center border border-line rounded-[6px] overflow-hidden bg-page focus-within:border-secondary focus-within:shadow-[0_0_0_3px_rgba(139,111,71,0.1)]">
+                  <span className="px-3.5 py-[11px] bg-cream text-muted text-sm font-bold border-r border-line whitespace-nowrap">Rp</span>
                   <input
-                    id="price"
-                    name="price"
-                    type="number"
-                    min="0"
-                    value={form.price}
-                    onChange={handleChange}
-                    required
-                    placeholder="0"
-                    className="input-with-prefix"
+                    id="price" name="price" type="number" min="0"
+                    value={form.price} onChange={handleChange} required placeholder="0"
+                    className="border-0 outline-none flex-1 px-3.5 py-[11px] text-sm bg-transparent focus:bg-white"
                   />
                 </div>
-                {form.price && (
-                  <span className="field-hint">
-                    = {formatPrice(form.price)}
-                  </span>
-                )}
+                {form.price && <span className="block text-xs text-muted mt-[5px]">= {formatPrice(form.price)}</span>}
               </div>
 
-              {/* Kategori */}
-              <div className="form-group">
-                <label htmlFor="category_id">
-                  Kategori <span className="required-star">*</span>
+              <div className="mb-[18px]">
+                <label htmlFor="category_id" className={labelClass}>
+                  Kategori <span className="text-red-600 ml-0.5">*</span>
                 </label>
-                <select
-                  id="category_id"
-                  name="category_id"
-                  value={form.category_id}
-                  onChange={handleChange}
-                  required
-                  className="form-select"
-                >
+                <select id="category_id" name="category_id" value={form.category_id} onChange={handleChange} required className={inputClass}>
                   <option value="" disabled>-- Pilih kategori --</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
+                  {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
 
-              {/* Deskripsi */}
-              <div className="form-group">
-                <label htmlFor="description">Deskripsi</label>
+              <div className="mb-[18px]">
+                <label htmlFor="description" className={labelClass}>Deskripsi</label>
                 <textarea
-                  id="description"
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
+                  id="description" name="description" value={form.description} onChange={handleChange}
                   placeholder="Jelaskan produk Anda secara detail: bahan, ukuran, kondisi, keunggulan, dll."
                   rows={4}
-                  className="form-textarea"
+                  className={`${inputClass} resize-y min-h-[100px]`}
                 />
-                <span className="field-hint">{form.description.length} karakter</span>
+                <span className="block text-xs text-muted mt-[5px]">{form.description.length} karakter</span>
               </div>
 
-              {/* URL Gambar */}
-              <div className="form-group">
-                <label htmlFor="file_url">URL Gambar</label>
+              <div className="mb-[18px]">
+                <label htmlFor="file_url" className={labelClass}>URL Gambar</label>
                 <input
-                  id="file_url"
-                  name="file_url"
-                  type="text"
-                  value={form.file_url}
-                  onChange={handleChange}
+                  id="file_url" name="file_url" type="text" value={form.file_url} onChange={handleChange}
                   placeholder="https://contoh.com/gambar.jpg atau data:image/jpeg;base64,..."
+                  className={inputClass}
                 />
-                <span className="field-hint">
-                  Kosongkan jika tidak ada gambar · Gunakan link gambar yang valid
-                </span>
+                <span className="block text-xs text-muted mt-[5px]">Kosongkan jika tidak ada gambar · Gunakan link gambar yang valid</span>
               </div>
 
-              {/* Tombol */}
-              <div className="product-form-actions">
+              <div className="flex gap-2.5 mt-[26px] pt-[22px] border-t border-line">
                 <button
                   type="button"
-                  className="btn btn-outline"
+                  className="px-5 py-2.5 rounded-[6px] border border-line text-[13px] font-bold cursor-pointer transition-all duration-200 bg-transparent text-primary hover:bg-page hover:border-secondary hover:text-secondary disabled:opacity-45"
                   onClick={() => navigate(isEdit ? `/products/${id}` : "/my-products")}
                   disabled={loading}
                 >
@@ -271,15 +198,10 @@ export default function ProductForm() {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="flex-1 px-5 py-2.5 rounded-[6px] border-0 text-[13px] font-bold cursor-pointer transition-all duration-200 bg-primary text-white hover:bg-secondary hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed disabled:translate-y-0"
                   disabled={loading}
-                  style={{ flex: 1 }}
                 >
-                  {loading
-                    ? "Menyimpan..."
-                    : isEdit
-                    ? "💾 Simpan Perubahan"
-                    : "🚀 Tambah Produk"}
+                  {loading ? "Menyimpan..." : isEdit ? "💾 Simpan Perubahan" : "🚀 Tambah Produk"}
                 </button>
               </div>
             </form>

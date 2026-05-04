@@ -6,24 +6,9 @@ import { useCart } from "../context/CartContext.jsx";
 import ZFluxLogo from "./ZFluxLogo.jsx";
 
 const DUMMY_NOTIFS = [
-  {
-    id: 1,
-    title: "Pesanan dikirim",
-    desc: "Pesanan #ZF-1024 dalam perjalanan",
-    time: "5 menit lalu",
-  },
-  {
-    id: 2,
-    title: "Promo TWS Gaming 50%",
-    desc: "Diskon spesial sampai malam ini",
-    time: "1 jam lalu",
-  },
-  {
-    id: 3,
-    title: "Voucher baru tersedia",
-    desc: "Klaim voucher cashback Rp 25rb",
-    time: "2 jam lalu",
-  },
+  { id: 1, title: "Pesanan dikirim", desc: "Pesanan #ZF-1024 dalam perjalanan", time: "5 menit lalu" },
+  { id: 2, title: "Promo TWS Gaming 50%", desc: "Diskon spesial sampai malam ini", time: "1 jam lalu" },
+  { id: 3, title: "Voucher baru tersedia", desc: "Klaim voucher cashback Rp 25rb", time: "2 jam lalu" },
 ];
 
 export default function Navbar() {
@@ -39,8 +24,6 @@ export default function Navbar() {
   const [notifOpen, setNotifOpen] = useState(false);
   const searchAreaRef = useRef(null);
   const notifRef = useRef(null);
-
-  const activeCat = searchParams.get("category") || "";
 
   useEffect(() => {
     axiosClient
@@ -58,21 +41,14 @@ export default function Navbar() {
 
   useEffect(() => {
     const onClick = (e) => {
-      if (searchAreaRef.current && !searchAreaRef.current.contains(e.target)) {
-        setCatOpen(false);
-      }
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
-        setNotifOpen(false);
-      }
+      if (searchAreaRef.current && !searchAreaRef.current.contains(e.target)) setCatOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
+  const handleLogout = async () => { await logout(); navigate("/login"); };
 
   const handleSearch = (e) => {
     e?.preventDefault?.();
@@ -90,34 +66,31 @@ export default function Navbar() {
     setCatOpen(false);
   };
 
-  // Hide search/categories on auth pages for cleaner look
-  const isAuthPage =
-    location.pathname === "/login" || location.pathname === "/register";
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
 
   return (
-    <nav className="zf-nav">
-      <div className="zf-nav-inner">
-        <Link to="/" className="zf-logo">
+    <nav className="bg-white border-b border-line sticky top-0 z-[100] shadow-[0_1px_12px_rgba(28,28,28,0.06)]">
+      <div className="max-w-[1200px] mx-auto px-6 py-3 flex items-center gap-4">
+
+        {/* Logo */}
+        <Link to="/" className="group whitespace-nowrap shrink-0 no-underline transition-opacity duration-[180ms] hover:opacity-75">
           <ZFluxLogo />
         </Link>
 
+        {/* Search */}
         {!isAuthPage && (
-          <div className="zf-search-area" ref={searchAreaRef}>
-            <form className="zf-search-row" onSubmit={handleSearch}>
+          <div className="flex-1 relative min-w-0" ref={searchAreaRef}>
+            <form
+              className="flex items-stretch border border-line rounded-[6px] bg-page overflow-hidden transition-[border-color,box-shadow,background] duration-200 focus-within:border-secondary focus-within:shadow-[0_0_0_3px_rgba(139,111,71,0.1)] focus-within:bg-white"
+              onSubmit={handleSearch}
+            >
+              {/* Category trigger */}
               <button
                 type="button"
-                className={`zf-cat-trigger ${catOpen ? "open" : ""}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCatOpen((v) => !v);
-                }}
+                className="flex items-center gap-[5px] px-3.5 bg-transparent border-0 border-r border-line cursor-pointer whitespace-nowrap text-xs font-semibold text-muted shrink-0 tracking-[0.2px] transition-colors duration-200 hover:text-primary"
+                onClick={(e) => { e.stopPropagation(); setCatOpen((v) => !v); }}
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3 h-3">
                   <path d="M3 6h18M3 12h18M3 18h18" />
                 </svg>
                 Kategori
@@ -126,20 +99,15 @@ export default function Navbar() {
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2.5"
+                  className={`w-3 h-3 transition-transform duration-200 ${catOpen ? "rotate-180" : ""}`}
                 >
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </button>
 
-              <div className="zf-search-input-wrap">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#bbb"
-                  strokeWidth="2"
-                  width="14"
-                  height="14"
-                >
+              {/* Input */}
+              <div className="flex-1 flex items-center px-3 gap-2 min-w-0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="2" width="14" height="14" className="shrink-0">
                   <circle cx="11" cy="11" r="8" />
                   <path d="m21 21-4.35-4.35" />
                 </svg>
@@ -148,16 +116,16 @@ export default function Navbar() {
                   placeholder="Cari produk, brand, atau kategori..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
+                  className="border-0 outline-none flex-1 text-[13px] text-primary bg-transparent py-2.5 min-w-0 placeholder:text-[#bbb8b3]"
                 />
               </div>
 
-              <button type="submit" className="zf-search-btn">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
+              {/* Search button */}
+              <button
+                type="submit"
+                className="bg-primary text-white border-0 px-5 text-xs font-bold cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 tracking-[0.3px] transition-colors duration-200 hover:bg-secondary"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-[13px] h-[13px]">
                   <circle cx="11" cy="11" r="8" />
                   <path d="m21 21-4.35-4.35" />
                 </svg>
@@ -165,29 +133,30 @@ export default function Navbar() {
               </button>
             </form>
 
+            {/* Category dropdown */}
             {catOpen && (
-              <div className="zf-cat-dropdown">
-                <div className="zf-cat-dropdown-title">Pilih kategori</div>
+              <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white border border-line rounded-[10px] shadow-[0_12px_36px_rgba(28,28,28,0.12)] z-[200] p-3.5">
+                <div className="text-[10px] font-bold text-[#bbb] uppercase tracking-[0.8px] mb-2.5">Pilih kategori</div>
                 {categories.length === 0 ? (
-                  <div className="zf-cat-empty">Belum ada kategori.</div>
+                  <div className="py-3 px-1 text-[13px] text-[#999]">Belum ada kategori.</div>
                 ) : (
-                  <div className="zf-cat-grid-full">
+                  <div className="grid grid-cols-3 gap-1.5">
                     <button
                       type="button"
-                      className="zf-cat-grid-item"
+                      className="px-3 py-2.5 rounded-[6px] border border-line cursor-pointer flex items-center gap-2 bg-white text-xs text-muted text-left transition-all duration-[180ms] hover:bg-cream hover:border-secondary hover:text-secondary"
                       onClick={() => handleCatPick(null)}
                     >
-                      <span className="zf-cat-grid-dot" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-tan shrink-0" />
                       <span>Semua Kategori</span>
                     </button>
                     {categories.map((c) => (
                       <button
                         key={c.id}
                         type="button"
-                        className="zf-cat-grid-item"
+                        className="px-3 py-2.5 rounded-[6px] border border-line cursor-pointer flex items-center gap-2 bg-white text-xs text-muted text-left transition-all duration-[180ms] hover:bg-cream hover:border-secondary hover:text-secondary"
                         onClick={() => handleCatPick(c.id)}
                       >
-                        <span className="zf-cat-grid-dot" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-tan shrink-0" />
                         <span>{c.name}</span>
                       </button>
                     ))}
@@ -198,56 +167,51 @@ export default function Navbar() {
           </div>
         )}
 
-        <div className="zf-nav-right">
-          <Link to="/cart" className="zf-icon-btn">
+        {/* Right icons */}
+        <div className="flex items-center gap-[18px] shrink-0">
+
+          {/* Cart */}
+          <Link to="/cart" className="flex flex-col items-center gap-0.5 cursor-pointer relative text-muted no-underline transition-colors duration-200 hover:text-primary hover:no-underline">
             {count > 0 && (
-              <div className="zf-badge">{count > 99 ? "99+" : count}</div>
+              <div className="absolute -top-[5px] -right-2 bg-primary text-white text-[9px] rounded-[10px] px-[5px] py-px font-bold min-w-4 text-center leading-[1.2] pointer-events-none">
+                {count > 99 ? "99+" : count}
+              </div>
             )}
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
               <line x1="3" y1="6" x2="21" y2="6" />
               <path d="M16 10a4 4 0 0 1-8 0" />
             </svg>
-            <span className="zf-icon-label">Keranjang</span>
+            <span className="text-[9px] whitespace-nowrap font-medium tracking-[0.2px]">Keranjang</span>
           </Link>
 
-          <div className="zf-icon-wrap" ref={notifRef}>
+          {/* Notif */}
+          <div className="relative" ref={notifRef}>
             <button
               type="button"
-              className="zf-icon-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                setNotifOpen((v) => !v);
-              }}
+              className="flex flex-col items-center gap-0.5 cursor-pointer relative bg-transparent border-0 text-muted transition-colors duration-200 hover:text-primary"
+              onClick={(e) => { e.stopPropagation(); setNotifOpen((v) => !v); }}
             >
-              <div className="zf-badge">{DUMMY_NOTIFS.length}</div>
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
+              <div className="absolute -top-[5px] -right-2 bg-primary text-white text-[9px] rounded-[10px] px-[5px] py-px font-bold min-w-4 text-center leading-[1.2] pointer-events-none">
+                {DUMMY_NOTIFS.length}
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
-              <span className="zf-icon-label">Notif</span>
+              <span className="text-[9px] whitespace-nowrap font-medium tracking-[0.2px]">Notif</span>
             </button>
 
             {notifOpen && (
-              <div className="zf-notif-dropdown">
-                <div className="zf-notif-title">Notifikasi</div>
+              <div className="absolute top-[calc(100%+12px)] right-0 w-[300px] bg-white border border-line rounded-[10px] shadow-[0_12px_36px_rgba(28,28,28,0.12)] overflow-hidden z-[200]">
+                <div className="px-4 py-3 text-[11px] font-bold text-muted border-b border-line uppercase tracking-[0.8px]">Notifikasi</div>
                 {DUMMY_NOTIFS.map((n) => (
-                  <div key={n.id} className="zf-notif-item">
-                    <div className="zf-notif-dot" />
+                  <div key={n.id} className="px-4 py-3 flex gap-2.5 items-start border-b border-line last:border-b-0 cursor-pointer transition-colors duration-150 hover:bg-cream">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-[5px] shrink-0" />
                     <div>
-                      <div className="zf-notif-item-title">{n.title}</div>
-                      <div className="zf-notif-item-desc">{n.desc}</div>
-                      <div className="zf-notif-item-time">{n.time}</div>
+                      <div className="text-xs font-bold text-primary mb-0.5">{n.title}</div>
+                      <div className="text-[11px] text-muted mb-0.5">{n.desc}</div>
+                      <div className="text-[10px] text-[#bbb]">{n.time}</div>
                     </div>
                   </div>
                 ))}
@@ -255,55 +219,38 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* Auth */}
           {isAuthenticated ? (
-            <div className="zf-user-area">
+            <div className="flex items-center gap-2.5">
               {user?.role === "seller" && (
-                <Link to="/my-products" className="zf-seller-btn">
+                <Link
+                  to="/my-products"
+                  className="bg-cream text-secondary border border-tan rounded px-3.5 py-[7px] text-[13px] font-semibold no-underline whitespace-nowrap transition-all duration-200 hover:bg-secondary hover:text-white hover:border-secondary hover:no-underline"
+                >
                   Produk Saya
                 </Link>
               )}
-              <Link to="/profile" className="zf-user-link">
+              <Link to="/profile" className="text-[13px] text-muted font-semibold whitespace-nowrap no-underline transition-colors duration-200 hover:text-primary">
                 Hai, {user?.name?.split(" ")[0] || "User"}
               </Link>
               <button
                 type="button"
-                className="zf-login-btn zf-logout"
+                className="bg-transparent text-muted border border-line rounded px-3.5 py-[7px] text-xs font-bold cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-primary hover:text-white hover:border-primary"
                 onClick={handleLogout}
               >
                 Logout
               </button>
             </div>
           ) : (
-            <Link to="/login" className="zf-login-btn">
+            <Link
+              to="/login"
+              className="bg-primary text-white border-0 rounded px-[18px] py-2 text-xs font-bold whitespace-nowrap no-underline inline-block tracking-[0.3px] transition-all duration-200 hover:bg-secondary hover:text-white hover:no-underline hover:-translate-y-px"
+            >
               Masuk / Daftar
             </Link>
           )}
         </div>
       </div>
-
-      {/* {!isAuthPage && (
-        <div className="zf-cat-bar">
-          <button
-            type="button"
-            className={`zf-cat-pill ${!activeCat ? "active" : ""}`}
-            onClick={() => handleCatPick(null)}
-          >
-            Semua
-          </button>
-          {categories.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              className={`zf-cat-pill ${
-                String(activeCat) === String(c.id) ? "active" : ""
-              }`}
-              onClick={() => handleCatPick(c.id)}
-            >
-              {c.name}
-            </button>
-          ))}
-        </div>
-      )} */}
     </nav>
   );
 }

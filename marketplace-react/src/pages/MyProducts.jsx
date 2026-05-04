@@ -11,17 +11,14 @@ export default function MyProducts() {
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
 
-  useEffect(() => {
-    fetchMyProducts();
-  }, []);
+  useEffect(() => { fetchMyProducts(); }, []);
 
   const fetchMyProducts = async () => {
     try {
       setLoading(true);
       const res = await axiosClient.get("/products");
       const all = res.data?.data ?? res.data ?? [];
-      const mine = all.filter((p) => p.user_id === user?.id);
-      setProducts(mine);
+      setProducts(all.filter((p) => p.user_id === user?.id));
     } catch {
       setError("Gagal memuat produk");
     } finally {
@@ -43,63 +40,56 @@ export default function MyProducts() {
   };
 
   if (user?.role !== "seller") return <Navigate to="/" replace />;
-  if (loading) return <div className="loading">Memuat produk...</div>;
+  if (loading) return <div className="text-center py-[70px] text-muted">Memuat produk...</div>;
 
   return (
     <div>
-      <div className="home-header">
+      <div className="flex justify-between items-start gap-4 mb-6">
         <div>
-          <h1>Produk Saya</h1>
-          <p className="home-subtitle">{products.length} produk terdaftar</p>
+          <h1 className="text-2xl font-extrabold text-primary tracking-[-0.3px]">Produk Saya</h1>
+          <p className="text-sm text-muted mt-1">{products.length} produk terdaftar</p>
         </div>
-        <Link to="/products/create" className="btn btn-primary">
+        <Link
+          to="/products/create"
+          className="bg-primary text-white px-[18px] py-2.5 rounded text-[13px] font-bold no-underline whitespace-nowrap transition-all duration-200 hover:bg-secondary hover:text-white hover:-translate-y-px hover:no-underline"
+        >
           + Tambah Produk
         </Link>
       </div>
 
-      {error && <div className="alert alert-error">{error}</div>}
+      {error && <div className="px-4 py-3 rounded-[6px] mb-4 text-[13px] font-medium bg-red-50 text-red-700 border border-red-200">{error}</div>}
 
       {products.length === 0 ? (
-        <div className="empty-state">
+        <div className="text-center py-[70px] text-muted bg-white rounded-[10px] border border-line">
           <p>Belum ada produk. Klik "Tambah Produk" untuk mulai berjualan.</p>
         </div>
       ) : (
-        <div className="my-products-table">
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="bg-white rounded-[10px] border border-line overflow-hidden shadow-[0_2px_24px_rgba(28,28,28,0.07)]">
+          <table className="w-full border-collapse">
             <thead>
-              <tr style={{ background: "var(--bg)", textAlign: "left" }}>
-                <th style={thStyle}>Nama Produk</th>
-                <th style={thStyle}>Kategori</th>
-                <th style={thStyle}>Harga</th>
-                <th style={thStyle}>Aksi</th>
+              <tr className="bg-page text-left">
+                <th className="px-4 py-3 font-semibold text-[13px] text-primary">Nama Produk</th>
+                <th className="px-4 py-3 font-semibold text-[13px] text-primary">Kategori</th>
+                <th className="px-4 py-3 font-semibold text-[13px] text-primary">Harga</th>
+                <th className="px-4 py-3 font-semibold text-[13px] text-primary">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {products.map((p) => (
-                <tr key={p.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                  <td style={tdStyle}>{p.name}</td>
-                  <td style={tdStyle}>{p.category?.name ?? "-"}</td>
-                  <td style={tdStyle}>
-                    Rp {Number(p.price).toLocaleString("id-ID")}
-                  </td>
-                  <td style={tdStyle}>
-                    <div style={{ display: "flex", gap: "8px" }}>
+                <tr key={p.id} className="border-t border-line">
+                  <td className="px-4 py-3 text-sm bg-white">{p.name}</td>
+                  <td className="px-4 py-3 text-sm bg-white">{p.category?.name ?? "-"}</td>
+                  <td className="px-4 py-3 text-sm bg-white">Rp {Number(p.price).toLocaleString("id-ID")}</td>
+                  <td className="px-4 py-3 text-sm bg-white">
+                    <div className="flex gap-2">
                       <button
-                        className="btn btn-outline"
-                        style={{ padding: "6px 12px", fontSize: "13px" }}
+                        className="px-3 py-1.5 text-[13px] rounded border border-line bg-transparent text-primary cursor-pointer transition-all duration-200 hover:bg-page hover:border-secondary hover:text-secondary"
                         onClick={() => navigate(`/products/${p.id}/edit`)}
                       >
                         Edit
                       </button>
                       <button
-                        className="btn"
-                        style={{
-                          padding: "6px 12px",
-                          fontSize: "13px",
-                          background: "var(--danger-bg)",
-                          color: "var(--danger)",
-                          border: "1px solid #fca5a5",
-                        }}
+                        className="px-3 py-1.5 text-[13px] rounded border border-red-200 bg-red-50 text-red-700 cursor-pointer transition-colors duration-200 hover:bg-red-100 disabled:opacity-50"
                         onClick={() => handleDelete(p.id)}
                         disabled={deletingId === p.id}
                       >
@@ -116,6 +106,3 @@ export default function MyProducts() {
     </div>
   );
 }
-
-const thStyle = { padding: "12px 16px", fontWeight: 600, fontSize: "13px" };
-const tdStyle = { padding: "12px 16px", fontSize: "14px", background: "var(--card)" };

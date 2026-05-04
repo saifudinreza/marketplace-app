@@ -13,61 +13,19 @@ import Cart from "./pages/Cart.jsx";
 
 export default function App() {
   return (
-    <div className="app">
+    <div>
       <Navbar />
-      <main className="container">
+      <main className="max-w-[1200px] mx-auto px-6 py-5 pb-12">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/products/:id"
-            element={
-              <ProtectedRoute>
-                <ProductDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/my-products"
-            element={
-              <ProtectedRoute>
-                <MyProducts />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/products/create"
-            element={
-              <ProtectedRoute>
-                <ProductForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/products/:id/edit"
-            element={
-              <ProtectedRoute>
-                <ProductForm />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/products/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/my-products" element={<ProtectedRoute><MyProducts /></ProtectedRoute>} />
+          <Route path="/products/create" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
+          <Route path="/products/:id/edit" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
 
           <Route path="/cart" element={<Cart />} />
           <Route path="/prototype" element={<Prototype />} />

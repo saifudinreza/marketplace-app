@@ -1,35 +1,21 @@
 export default function ZFluxLogo() {
   return (
-    <span className="zf-logo-wrap">
+    <span className="flex items-center gap-[9px]">
       <svg
         width="38"
         height="38"
         viewBox="0 0 38 38"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="zf-logo-icon"
+        className="block shrink-0 drop-shadow-[0_2px_6px_rgba(0,0,0,0.18)] transition-transform duration-200 group-hover:scale-[1.07] group-hover:rotate-[-2deg]"
         aria-hidden="true"
       >
         <defs>
-          <linearGradient
-            id="zfBg"
-            x1="0"
-            y1="0"
-            x2="38"
-            y2="38"
-            gradientUnits="userSpaceOnUse"
-          >
+          <linearGradient id="zfBg" x1="0" y1="0" x2="38" y2="38" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#232323" />
             <stop offset="100%" stopColor="#111111" />
           </linearGradient>
-          <linearGradient
-            id="zfStroke"
-            x1="7"
-            y1="9"
-            x2="31"
-            y2="29"
-            gradientUnits="userSpaceOnUse"
-          >
+          <linearGradient id="zfStroke" x1="7" y1="9" x2="31" y2="29" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#d4a84b" />
             <stop offset="100%" stopColor="#8b6f47" />
           </linearGradient>
@@ -41,23 +27,8 @@ export default function ZFluxLogo() {
             </feMerge>
           </filter>
         </defs>
-
-        {/* Badge background */}
         <rect width="38" height="38" rx="10" fill="url(#zfBg)" />
-
-        {/* Subtle inner border */}
-        <rect
-          x="1"
-          y="1"
-          width="36"
-          height="36"
-          rx="9.5"
-          stroke="rgba(255,255,255,0.07)"
-          strokeWidth="1"
-          fill="none"
-        />
-
-        {/* Z / lightning bolt shape */}
+        <rect x="1" y="1" width="36" height="36" rx="9.5" stroke="rgba(255,255,255,0.07)" strokeWidth="1" fill="none" />
         <path
           d="M9 10.5 L29 10.5 L9 27.5 L29 27.5"
           stroke="url(#zfStroke)"
@@ -67,13 +38,10 @@ export default function ZFluxLogo() {
           fill="none"
           filter="url(#zfGlow)"
         />
-
-        {/* Accent dot at pivot point of the Z */}
         <circle cx="19" cy="19" r="2.2" fill="#d4a84b" opacity="0.85" />
       </svg>
-
-      <span className="zf-logo-text">
-        Z<em>Flux</em>
+      <span className="text-xl font-extrabold tracking-[-0.5px] text-primary not-italic">
+        Z<em className="text-secondary not-italic">Flux</em>
       </span>
     </span>
   );
