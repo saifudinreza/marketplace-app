@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams, useLocation } from "react-router-do
 import axiosClient from "../api/axiosClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useCart } from "../context/CartContext.jsx";
+import { useAddress } from "../context/AddressContext.jsx";
 import ZFluxLogo from "./ZFluxLogo.jsx";
 
 const DUMMY_NOTIFS = [
@@ -14,6 +15,7 @@ const DUMMY_NOTIFS = [
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const { count } = useCart();
+  const { activeAddress, setModalOpen } = useAddress();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -68,6 +70,15 @@ export default function Navbar() {
 
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
 
+  const activeCatId = searchParams.get("category") || "";
+  const activeCatName = activeCatId
+    ? categories.find((c) => String(c.id) === activeCatId)?.name
+    : null;
+
+  const shortAddr = activeAddress
+    ? (activeAddress.shortAddress || activeAddress.address || "").split(",").slice(0, 2).join(",")
+    : null;
+
   return (
     <nav className="bg-white border-b border-line sticky top-0 z-[100] shadow-[0_1px_12px_rgba(28,28,28,0.06)]">
       <div className="max-w-[1200px] mx-auto px-6 py-3 flex items-center gap-4">
@@ -81,7 +92,7 @@ export default function Navbar() {
         {!isAuthPage && (
           <div className="flex-1 relative min-w-0" ref={searchAreaRef}>
             <form
-              className="flex items-stretch border border-line rounded-[6px] bg-page overflow-hidden transition-[border-color,box-shadow,background] duration-200 focus-within:border-secondary focus-within:shadow-[0_0_0_3px_rgba(139,111,71,0.1)] focus-within:bg-white"
+              className="flex items-stretch border border-line rounded-[10px] bg-page overflow-hidden transition-[border-color,box-shadow,background] duration-200 focus-within:border-secondary focus-within:shadow-[0_0_0_3px_rgba(139,111,71,0.1)] focus-within:bg-white"
               onSubmit={handleSearch}
             >
               {/* Category trigger */}
@@ -93,7 +104,9 @@ export default function Navbar() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3 h-3">
                   <path d="M3 6h18M3 12h18M3 18h18" />
                 </svg>
-                Kategori
+                <span className={activeCatName ? "text-secondary max-w-[100px] truncate" : ""}>
+                  {activeCatName ?? "Kategori"}
+                </span>
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -251,6 +264,40 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      {/* ── Address bar ── */}
+      {isAuthenticated && !isAuthPage && (
+        <div className="bg-[#faf8f5] border-b border-line">
+          <div className="max-w-[1200px] mx-auto px-6 py-[7px] flex items-center gap-2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8b6b4a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 shrink-0">
+              <path d="M20 10c0 6-8 13-8 13s-8-7-8-13a8 8 0 0 1 16 0Z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span className="text-[11px] text-muted">Dikirim ke</span>
+            <button
+              type="button"
+              onClick={() => setModalOpen(true)}
+              className="flex items-center gap-1 bg-transparent border-0 cursor-pointer p-0 group"
+            >
+              <span className="text-[11px] font-bold text-primary max-w-[320px] truncate group-hover:text-secondary transition-colors duration-150">
+                {shortAddr || (
+                  <span className="text-secondary font-bold">+ Tambah Alamat Pengiriman</span>
+                )}
+              </span>
+              {shortAddr && (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3 h-3 text-muted group-hover:text-secondary transition-colors">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              )}
+            </button>
+            {activeAddress && (
+              <span className="ml-auto text-[10px] font-bold text-secondary bg-[#f5ede0] px-2 py-0.5 rounded-full">
+                {activeAddress.label || "Alamat"}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

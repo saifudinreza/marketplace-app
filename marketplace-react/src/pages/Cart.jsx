@@ -48,11 +48,17 @@ export default function Cart() {
               key={item.id}
               className="grid grid-cols-[70px_1fr_auto_auto_auto] gap-3.5 items-center p-4 border border-line rounded-lg transition-[border-color,box-shadow] duration-[180ms] hover:border-secondary hover:shadow-[0_4px_14px_rgba(28,28,28,0.06)] max-[640px]:grid-cols-[60px_1fr] max-[640px]:grid-rows-[auto_auto]"
             >
-              <img
-                src={item.image || `https://picsum.photos/seed/${item.id}/120/120`}
-                alt={item.name}
-                className="w-[70px] h-[70px] rounded-[6px] object-cover"
-              />
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-[70px] h-[70px] rounded-[6px] object-cover"
+                />
+              ) : (
+                <div className="w-[70px] h-[70px] rounded-[6px] bg-cream flex items-center justify-center text-muted text-[11px] text-center px-1">
+                  No Image
+                </div>
+              )}
               <div>
                 <div className="text-sm font-semibold text-primary mb-1 leading-[1.35]">{item.name}</div>
                 <div className="text-xs text-muted">Rp {Number(item.price).toLocaleString("id-ID")} / item</div>

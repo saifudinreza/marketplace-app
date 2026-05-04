@@ -4,8 +4,6 @@ import axiosClient from "../api/axiosClient.js";
 import { useFadeUp, useSlideIn } from "../hooks/useAnime.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
-const FALLBACK_IMG = "https://picsum.photos/seed/default/400/300";
-
 export default function ProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -63,7 +61,7 @@ export default function ProductForm() {
     }
   };
 
-  const previewImg = form.file_url && !imgError ? form.file_url : FALLBACK_IMG;
+  const previewImg = form.file_url && !imgError ? form.file_url : "";
   const selectedCategory = categories.find((c) => String(c.id) === String(form.category_id));
 
   if (user?.role !== "seller") return <Navigate to="/" replace />;
@@ -87,13 +85,15 @@ export default function ProductForm() {
         <div className="sticky top-[90px]" ref={leftRef}>
           <div className="bg-white rounded-[10px] shadow-[0_2px_24px_rgba(28,28,28,0.07)] overflow-hidden border border-line">
             <div className="relative w-full h-[200px] bg-cream">
-              <img
-                src={previewImg}
-                alt="Preview produk"
-                className="w-full h-full object-cover"
-                onError={() => setImgError(true)}
-              />
-              {!form.file_url && (
+              {previewImg ? (
+                <img
+                  src={previewImg}
+                  alt="Preview produk"
+                  className="w-full h-full object-cover"
+                  onError={() => setImgError(true)}
+                />
+              ) : null}
+              {!previewImg && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-cream text-muted text-[13px]">
                   <span className="text-[32px]">📷</span>
                   <p>Preview gambar muncul di sini</p>

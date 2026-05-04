@@ -5,6 +5,7 @@ import ProductCard from "../components/ProductCard.jsx";
 import Pagination from "../components/Pagination.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
+// Emoji for inline text labels
 const CAT_ICONS = {
   "Elektronik": "💻",
   "Fashion": "👗",
@@ -14,6 +15,48 @@ const CAT_ICONS = {
   "Buku & Pendidikan": "📚",
   "Kecantikan & Kesehatan": "💄",
   "Otomotif": "🚗",
+};
+
+const IC = "w-[22px] h-[22px]";
+const SP = { fill: "none", stroke: "currentColor", strokeWidth: "1.8", strokeLinecap: "round", strokeLinejoin: "round" };
+
+const CAT_CONFIG = {
+  all: {
+    bg: "bg-violet-50", color: "text-violet-600",
+    icon: <svg viewBox="0 0 24 24" className={IC} {...SP}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
+  },
+  "Elektronik": {
+    bg: "bg-blue-50", color: "text-blue-600",
+    icon: <svg viewBox="0 0 24 24" className={IC} {...SP}><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>,
+  },
+  "Fashion": {
+    bg: "bg-pink-50", color: "text-pink-500",
+    icon: <svg viewBox="0 0 24 24" className={IC} {...SP}><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>,
+  },
+  "Makanan & Minuman": {
+    bg: "bg-orange-50", color: "text-orange-500",
+    icon: <svg viewBox="0 0 24 24" className={IC} {...SP}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3v7"/></svg>,
+  },
+  "Peralatan Rumah": {
+    bg: "bg-emerald-50", color: "text-emerald-600",
+    icon: <svg viewBox="0 0 24 24" className={IC} {...SP}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+  },
+  "Olahraga": {
+    bg: "bg-green-50", color: "text-green-600",
+    icon: <svg viewBox="0 0 24 24" className={IC} {...SP}><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/><path d="M3.6 9h16.8M3.6 15h16.8"/></svg>,
+  },
+  "Buku & Pendidikan": {
+    bg: "bg-amber-50", color: "text-amber-600",
+    icon: <svg viewBox="0 0 24 24" className={IC} {...SP}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
+  },
+  "Kecantikan & Kesehatan": {
+    bg: "bg-purple-50", color: "text-purple-500",
+    icon: <svg viewBox="0 0 24 24" className={IC} {...SP}><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/><path d="M5 3v4M19 17v4M3 5h4M17 19h4"/></svg>,
+  },
+  "Otomotif": {
+    bg: "bg-slate-100", color: "text-slate-600",
+    icon: <svg viewBox="0 0 24 24" className={IC} {...SP}><path d="M19 17H5V11l3-6h8l3 6v6z"/><line x1="3" y1="11" x2="21" y2="11"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg>,
+  },
 };
 
 const ITEMS_PER_PAGE = 8;
@@ -62,7 +105,7 @@ export default function Home() {
         setProducts(Array.isArray(prodRes.data?.data ?? prodRes.data) ? (prodRes.data?.data ?? prodRes.data) : []);
         setCategories(Array.isArray(catRes.data?.data ?? catRes.data) ? (catRes.data?.data ?? catRes.data) : []);
       } catch {
-        setError("Gagal memuat data. Pastikan API jalan di localhost:8000");
+        setError("Gagal memuat data. Pastikan API marketplace aktif.");
       } finally {
         setLoading(false);
       }
@@ -124,11 +167,17 @@ export default function Home() {
                   </span>
                 </div>
                 <div className="w-[130px] h-[130px] rounded-[10px] bg-white/10 flex items-center justify-center overflow-hidden shrink-0 border border-white/15">
-                  <img
-                    src={b.file_url || b.image || b.image_url || `https://picsum.photos/seed/${b.id}/200/200`}
-                    alt={b.name}
-                    className="w-full h-full object-cover"
-                  />
+                  {b.file_url || b.image || b.image_url ? (
+                    <img
+                      src={b.file_url || b.image || b.image_url}
+                      alt={b.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white/75 text-xs font-semibold">
+                      No Image
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}
@@ -168,37 +217,46 @@ export default function Home() {
 
       {/* CATEGORIES */}
       {categories.length > 0 && (
-        <div className="bg-white rounded-[10px] p-[22px_24px] shadow-[0_1px_12px_rgba(28,28,28,0.05)] border border-line [animation:fadeUp_0.5s_ease_both]">
-          <div className="text-[15px] font-extrabold text-primary flex items-center gap-2.5 mb-4 tracking-[-0.2px]">
+        <div className="bg-white rounded-[15px] p-[18px_22px] shadow-[0_1px_12px_rgba(28,28,28,0.05)] border border-line [animation:fadeUp_0.5s_ease_both]">
+          <div className="text-[14px] font-extrabold text-primary flex items-center gap-2 mb-4 tracking-[-0.2px]">
             Kategori <span className="text-secondary">Produk</span>
           </div>
-          <div className="grid grid-cols-6 gap-4">
-            <button
-              type="button"
-              className={`flex flex-col items-center gap-2 cursor-pointer no-underline text-primary transition-transform duration-[220ms] p-1.5 rounded-lg border-0 bg-transparent hover:-translate-y-1 ${!catFilter ? "active" : ""}`}
-              onClick={() => handleCatClick(null)}
-            >
-              <div className={`w-14 h-14 rounded-[14px] flex items-center justify-center text-[22px] transition-[transform,box-shadow] duration-[220ms] hover:scale-[1.08] ${!catFilter ? "bg-primary text-white" : "bg-cream text-secondary"}`}>
-                🛍️
-              </div>
-              <span className={`text-[11px] text-center font-semibold leading-[1.3] tracking-[0.1px] ${!catFilter ? "text-primary font-bold" : "text-muted"}`}>
-                Semua
-              </span>
-            </button>
+          <div className="grid grid-cols-9 gap-2">
+
+            {/* Semua */}
+            {(() => {
+              const cfg = CAT_CONFIG.all;
+              const isActive = !catFilter;
+              return (
+                <button
+                  type="button"
+                  className="flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent p-1 rounded-xl transition-all duration-[220ms] hover:-translate-y-0.5 hover:scale-[1.04]"
+                  onClick={() => handleCatClick(null)}
+                >
+                  <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center transition-all duration-[220ms] ${isActive ? "bg-primary text-white shadow-[0_6px_16px_rgba(28,28,28,0.22)]" : `${cfg.bg} ${cfg.color}`}`}>
+                    {cfg.icon}
+                  </div>
+                  <span className={`text-[10px] text-center leading-[1.2] tracking-[0.1px] ${isActive ? "font-extrabold text-primary" : "font-semibold text-muted"}`}>
+                    Semua
+                  </span>
+                </button>
+              );
+            })()}
 
             {categories.map((c) => {
               const isActive = String(c.id) === catFilter;
+              const cfg = CAT_CONFIG[c.name] ?? { bg: "bg-cream", color: "text-secondary", icon: <span className="text-base">🏷️</span> };
               return (
                 <button
                   key={c.id}
                   type="button"
-                  className="flex flex-col items-center gap-2 cursor-pointer text-primary transition-transform duration-[220ms] p-1.5 rounded-lg border-0 bg-transparent hover:-translate-y-1"
+                  className="flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent p-1 rounded-xl transition-all duration-[220ms] hover:-translate-y-0.5 hover:scale-[1.04]"
                   onClick={() => handleCatClick(c.id)}
                 >
-                  <div className={`w-14 h-14 rounded-[14px] flex items-center justify-center text-[22px] transition-[transform,box-shadow] duration-[220ms] hover:scale-[1.08] ${isActive ? "bg-primary text-white" : "bg-cream text-secondary"}`}>
-                    {CAT_ICONS[c.name] ?? "🏷️"}
+                  <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center transition-all duration-[220ms] ${isActive ? "bg-primary text-white shadow-[0_6px_16px_rgba(28,28,28,0.22)]" : `${cfg.bg} ${cfg.color}`}`}>
+                    {cfg.icon}
                   </div>
-                  <span className={`text-[11px] text-center font-semibold leading-[1.3] tracking-[0.1px] ${isActive ? "text-primary font-bold" : "text-muted"}`}>
+                  <span className={`text-[10px] text-center leading-[1.2] tracking-[0.1px] ${isActive ? "font-extrabold text-primary" : "font-semibold text-muted"}`}>
                     {c.name}
                   </span>
                 </button>
@@ -209,7 +267,7 @@ export default function Home() {
       )}
 
       {/* VOUCHERS */}
-      <div className="bg-white rounded-[10px] p-[22px_24px] shadow-[0_1px_12px_rgba(28,28,28,0.05)] border border-line [animation:fadeUp_0.5s_ease_both]">
+      <div className="bg-white rounded-[15px] p-[22px_24px] shadow-[0_1px_12px_rgba(28,28,28,0.05)] border border-line [animation:fadeUp_0.5s_ease_both]">
         <div className="text-[15px] font-extrabold text-primary flex items-center gap-2.5 mb-4 tracking-[-0.2px]">
           Voucher <span className="text-secondary">Spesial</span>
         </div>
@@ -232,7 +290,7 @@ export default function Home() {
       </div>
 
       {/* PRODUCTS */}
-      <div className="bg-white rounded-[10px] p-[22px_24px] shadow-[0_1px_12px_rgba(28,28,28,0.05)] border border-line [animation:fadeUp_0.5s_ease_both]">
+      <div className="bg-white rounded-[15px] p-[22px_24px] shadow-[0_1px_12px_rgba(28,28,28,0.05)] border border-line [animation:fadeUp_0.5s_ease_both]">
         <div className="flex justify-between items-center gap-3 mb-1.5 flex-wrap">
           <div className="text-[15px] font-extrabold text-primary flex items-center gap-2.5 tracking-[-0.2px]">
             <span className="bg-primary text-white px-2.5 py-[3px] rounded text-[10px] font-bold tracking-[0.5px] uppercase">FLASH SALE</span>

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import AddressModal from "./components/AddressModal.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Home from "./pages/Home.jsx";
@@ -15,6 +16,7 @@ export default function App() {
   return (
     <div>
       <Navbar />
+      <AddressModal />
       <main className="max-w-[1200px] mx-auto px-6 py-5 pb-12">
         <Routes>
           <Route path="/login" element={<Login />} />

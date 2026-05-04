@@ -6,8 +6,7 @@ export default function ProductCard({ product }) {
   const imageUrl =
     product.file_url ||
     product.image ||
-    product.image_url ||
-    `https://picsum.photos/seed/${product.id}/400/300`;
+    product.image_url;
 
   const handleAdd = (e) => {
     e.preventDefault();
@@ -21,11 +20,17 @@ export default function ProductCard({ product }) {
       className="group bg-white border border-line rounded-lg overflow-hidden flex flex-col no-underline text-primary transition-[transform,box-shadow,border-color] duration-300 ease-out hover:border-transparent hover:shadow-[0_12px_36px_rgba(28,28,28,0.12)] hover:-translate-y-1 hover:text-primary hover:no-underline"
     >
       <div className="h-40 bg-cream flex items-center justify-center overflow-hidden">
-        <img
-          src={imageUrl}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.04]"
-        />
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted text-xs font-semibold">
+            No Image
+          </div>
+        )}
       </div>
       <div className="px-3.5 pt-3 pb-3.5 flex flex-col gap-1.5 flex-1">
         <div className="text-[13px] text-primary font-medium leading-[1.4] line-clamp-2">
