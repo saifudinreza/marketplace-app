@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams, useLocation } from "react-router-do
 import axiosClient from "../api/axiosClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useCart } from "../context/CartContext.jsx";
+import ZFluxLogo from "./ZFluxLogo.jsx";
 
 const DUMMY_NOTIFS = [
   {
@@ -97,7 +98,7 @@ export default function Navbar() {
     <nav className="zf-nav">
       <div className="zf-nav-inner">
         <Link to="/" className="zf-logo">
-          Z<span>Flux</span>
+          <ZFluxLogo />
         </Link>
 
         {!isAuthPage && (

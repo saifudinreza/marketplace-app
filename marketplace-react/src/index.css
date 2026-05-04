@@ -79,21 +79,45 @@ a:hover {
 }
 
 .zf-logo {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--primary);
-  letter-spacing: -0.5px;
   white-space: nowrap;
   flex-shrink: 0;
   text-decoration: none;
-  transition: opacity 0.2s;
+  transition: opacity 0.18s;
 }
 .zf-logo:hover {
-  opacity: 0.7;
+  opacity: 0.75;
   text-decoration: none;
 }
-.zf-logo span {
+
+/* Logo wrapper */
+.zf-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* SVG badge */
+.zf-logo-icon {
+  display: block;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.18));
+  transition: transform 0.2s ease;
+}
+.zf-logo:hover .zf-logo-icon {
+  transform: scale(1.07) rotate(-2deg);
+}
+
+/* Wordmark */
+.zf-logo-text {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--primary);
+  font-style: normal;
+}
+.zf-logo-text em {
   color: var(--secondary);
+  font-style: normal;
 }
 
 /* Search */
