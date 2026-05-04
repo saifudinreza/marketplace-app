@@ -17,7 +17,7 @@ export default function App() {
     <div>
       <Navbar />
       <AddressModal />
-      <main className="max-w-[1200px] mx-auto px-6 py-5 pb-12">
+      <main className="max-w-[1200px] mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-5 pb-12">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

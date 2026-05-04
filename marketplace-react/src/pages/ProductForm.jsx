@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate, useParams, Navigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient.js";
 import { useFadeUp, useSlideIn } from "../hooks/useAnime.js";
@@ -76,13 +76,13 @@ export default function ProductForm() {
         onClick={() => navigate(isEdit ? `/products/${id}` : "/my-products")}
         className="mb-[18px] inline-block px-5 py-2.5 rounded-[6px] border border-line text-[13px] font-bold cursor-pointer transition-all duration-200 bg-transparent text-primary hover:bg-page hover:border-secondary hover:text-secondary"
       >
-        ← Kembali
+        â† Kembali
       </button>
 
-      <div className="grid grid-cols-[1fr_1.4fr] gap-[26px] items-start max-[640px]:grid-cols-1">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-5 md:gap-[26px] items-start">
 
         {/* Preview */}
-        <div className="sticky top-[90px]" ref={leftRef}>
+        <div className="md:sticky md:top-[90px]" ref={leftRef}>
           <div className="bg-white rounded-[10px] shadow-[0_2px_24px_rgba(28,28,28,0.07)] overflow-hidden border border-line">
             <div className="relative w-full h-[200px] bg-cream">
               {previewImg ? (
@@ -95,7 +95,7 @@ export default function ProductForm() {
               ) : null}
               {!previewImg && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-cream text-muted text-[13px]">
-                  <span className="text-[32px]">📷</span>
+                  <span className="text-[32px]">ðŸ“·</span>
                   <p>Preview gambar muncul di sini</p>
                 </div>
               )}
@@ -120,9 +120,9 @@ export default function ProductForm() {
 
         {/* Form */}
         <div ref={rightRef}>
-          <div className="bg-white rounded-[10px] shadow-[0_2px_24px_rgba(28,28,28,0.07)] p-[30px] border border-line">
+          <div className="bg-white rounded-[10px] shadow-[0_2px_24px_rgba(28,28,28,0.07)] p-5 sm:p-[30px] border border-line">
             <div className="flex items-center gap-3.5 mb-[26px] pb-[22px] border-b border-line">
-              <div className="text-[32px] shrink-0">{isEdit ? "✏️" : "📦"}</div>
+              <div className="text-[32px] shrink-0">{isEdit ? "âœï¸" : "ðŸ“¦"}</div>
               <div>
                 <h2 className="text-xl font-extrabold tracking-[-0.3px] mb-0.5">{isEdit ? "Edit Produk" : "Tambah Produk Baru"}</h2>
                 <p className="text-sm text-muted">{isEdit ? "Perbarui informasi produk Anda" : "Isi detail produk yang ingin dijual"}</p>
@@ -130,7 +130,7 @@ export default function ProductForm() {
             </div>
 
             {error && <div className="px-4 py-3 rounded-[6px] mb-4 text-[13px] font-medium bg-red-50 text-red-700 border border-red-200">{error}</div>}
-            {success && <div className="px-4 py-3 rounded-[6px] mb-4 text-[13px] font-medium bg-green-50 text-green-700 border border-green-200">✅ {success}</div>}
+            {success && <div className="px-4 py-3 rounded-[6px] mb-4 text-[13px] font-medium bg-green-50 text-green-700 border border-green-200">âœ… {success}</div>}
 
             <form onSubmit={handleSubmit}>
               <div className="mb-[18px]">
@@ -184,7 +184,7 @@ export default function ProductForm() {
                   placeholder="https://contoh.com/gambar.jpg atau data:image/jpeg;base64,..."
                   className={inputClass}
                 />
-                <span className="block text-xs text-muted mt-[5px]">Kosongkan jika tidak ada gambar · Gunakan link gambar yang valid</span>
+                <span className="block text-xs text-muted mt-[5px]">Kosongkan jika tidak ada gambar Â· Gunakan link gambar yang valid</span>
               </div>
 
               <div className="flex gap-2.5 mt-[26px] pt-[22px] border-t border-line">
@@ -201,7 +201,7 @@ export default function ProductForm() {
                   className="flex-1 px-5 py-2.5 rounded-[6px] border-0 text-[13px] font-bold cursor-pointer transition-all duration-200 bg-primary text-white hover:bg-secondary hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed disabled:translate-y-0"
                   disabled={loading}
                 >
-                  {loading ? "Menyimpan..." : isEdit ? "💾 Simpan Perubahan" : "🚀 Tambah Produk"}
+                  {loading ? "Menyimpan..." : isEdit ? "ðŸ’¾ Simpan Perubahan" : "ðŸš€ Tambah Produk"}
                 </button>
               </div>
             </form>

@@ -202,10 +202,10 @@ export default function ProductDetail() {
               <img
                 src={imageUrl}
                 alt={product.name}
-                className="w-full h-[380px] object-contain bg-cream p-5"
+                className="w-full h-55 sm:h-80 md:h-95 object-contain bg-cream p-5"
               />
             ) : (
-              <div className="w-full h-[380px] bg-cream flex items-center justify-center text-muted text-sm font-semibold flex-col gap-2">
+              <div className="w-full h-55 sm:h-80 md:h-95 bg-cream flex items-center justify-center text-muted text-sm font-semibold flex-col gap-2">
                 <span className="text-4xl">📷</span>
                 Gambar tidak tersedia
               </div>

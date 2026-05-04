@@ -153,20 +153,20 @@ export default function Home() {
               <Link
                 key={b.id}
                 to={`/products/${b.id}`}
-                className={`min-w-full px-10 py-9 flex items-center justify-between gap-6 no-underline text-inherit ${SLIDE_BG[i % 3]}`}
+                className={`min-w-full px-4 sm:px-10 py-5 sm:py-9 flex items-center justify-between gap-4 sm:gap-6 no-underline text-inherit ${SLIDE_BG[i % 3]}`}
               >
-                <div className="text-white">
-                  <h2 className="text-2xl font-extrabold text-white mb-2 leading-[1.25] max-w-[380px] line-clamp-2 tracking-[-0.3px]">
+                <div className="text-white min-w-0">
+                  <h2 className="text-lg sm:text-2xl font-extrabold text-white mb-1.5 sm:mb-2 leading-[1.25] max-w-full sm:max-w-[380px] line-clamp-2 tracking-[-0.3px]">
                     {b.name}
                   </h2>
-                  <p className="text-[13px] text-white/75 mb-[18px]">
+                  <p className="text-[12px] sm:text-[13px] text-white/75 mb-3 sm:mb-[18px]">
                     Mulai Rp {Number(b.price || 0).toLocaleString("id-ID")} · Stok terbatas
                   </p>
-                  <span className={`inline-block bg-white rounded px-[22px] py-[9px] text-xs font-bold tracking-[0.5px] uppercase transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(0,0,0,0.2)] ${i === 1 ? "text-secondary" : "text-primary"}`}>
+                  <span className={`inline-block bg-white rounded px-4 sm:px-[22px] py-2 sm:py-[9px] text-[11px] sm:text-xs font-bold tracking-[0.5px] uppercase transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(0,0,0,0.2)] ${i === 1 ? "text-secondary" : "text-primary"}`}>
                     Belanja Sekarang
                   </span>
                 </div>
-                <div className="w-[130px] h-[130px] rounded-[10px] bg-white/10 flex items-center justify-center overflow-hidden shrink-0 border border-white/15">
+                <div className="w-[90px] h-[90px] sm:w-[130px] sm:h-[130px] rounded-[10px] bg-white/10 flex items-center justify-center overflow-hidden shrink-0 border border-white/15">
                   {b.file_url || b.image || b.image_url ? (
                     <img
                       src={b.file_url || b.image || b.image_url}
@@ -221,7 +221,8 @@ export default function Home() {
           <div className="text-[14px] font-extrabold text-primary flex items-center gap-2 mb-4 tracking-[-0.2px]">
             Kategori <span className="text-secondary">Produk</span>
           </div>
-          <div className="grid grid-cols-9 gap-2">
+          {/* Horizontal scroll on mobile, grid on desktop */}
+          <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-9 sm:overflow-visible sm:pb-0">
 
             {/* Semua */}
             {(() => {
@@ -230,13 +231,13 @@ export default function Home() {
               return (
                 <button
                   type="button"
-                  className="flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent p-1 rounded-xl transition-all duration-[220ms] hover:-translate-y-0.5 hover:scale-[1.04]"
+                  className="flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent p-1 rounded-xl transition-all duration-[220ms] hover:-translate-y-0.5 hover:scale-[1.04] shrink-0 sm:shrink"
                   onClick={() => handleCatClick(null)}
                 >
                   <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center transition-all duration-[220ms] ${isActive ? "bg-primary text-white shadow-[0_6px_16px_rgba(28,28,28,0.22)]" : `${cfg.bg} ${cfg.color}`}`}>
                     {cfg.icon}
                   </div>
-                  <span className={`text-[10px] text-center leading-[1.2] tracking-[0.1px] ${isActive ? "font-extrabold text-primary" : "font-semibold text-muted"}`}>
+                  <span className={`text-[10px] text-center leading-[1.2] tracking-[0.1px] whitespace-nowrap sm:whitespace-normal ${isActive ? "font-extrabold text-primary" : "font-semibold text-muted"}`}>
                     Semua
                   </span>
                 </button>
@@ -250,13 +251,13 @@ export default function Home() {
                 <button
                   key={c.id}
                   type="button"
-                  className="flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent p-1 rounded-xl transition-all duration-[220ms] hover:-translate-y-0.5 hover:scale-[1.04]"
+                  className="flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent p-1 rounded-xl transition-all duration-[220ms] hover:-translate-y-0.5 hover:scale-[1.04] shrink-0 sm:shrink"
                   onClick={() => handleCatClick(c.id)}
                 >
                   <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center transition-all duration-[220ms] ${isActive ? "bg-primary text-white shadow-[0_6px_16px_rgba(28,28,28,0.22)]" : `${cfg.bg} ${cfg.color}`}`}>
                     {cfg.icon}
                   </div>
-                  <span className={`text-[10px] text-center leading-[1.2] tracking-[0.1px] ${isActive ? "font-extrabold text-primary" : "font-semibold text-muted"}`}>
+                  <span className={`text-[10px] text-center leading-[1.2] tracking-[0.1px] whitespace-nowrap sm:whitespace-normal ${isActive ? "font-extrabold text-primary" : "font-semibold text-muted"}`}>
                     {c.name}
                   </span>
                 </button>
@@ -271,7 +272,7 @@ export default function Home() {
         <div className="text-[15px] font-extrabold text-primary flex items-center gap-2.5 mb-4 tracking-[-0.2px]">
           Voucher <span className="text-secondary">Spesial</span>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           {VOUCHERS.map((v) => (
             <div
               key={v.id}
@@ -326,7 +327,7 @@ export default function Home() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-4 gap-3.5 max-[900px]:grid-cols-3 max-[640px]:grid-cols-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3.5">
               {paginated.map((p) => (
                 <div key={p.id} className="product-grid-item">
                   <ProductCard product={p} />

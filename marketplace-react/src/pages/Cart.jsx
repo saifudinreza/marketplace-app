@@ -21,7 +21,7 @@ export default function Cart() {
   }
 
   return (
-    <div className="bg-white rounded-[10px] px-8 py-7 shadow-[0_2px_24px_rgba(28,28,28,0.07)] border border-line">
+    <div className="bg-white rounded-[10px] px-4 py-5 sm:px-8 sm:py-7 shadow-[0_2px_24px_rgba(28,28,28,0.07)] border border-line">
       {/* Header */}
       <div className="flex justify-between items-center mb-[22px] pb-[18px] border-b border-line">
         <h1 className="text-xl font-extrabold text-primary flex items-center gap-2.5 tracking-[-0.3px]">
@@ -40,13 +40,13 @@ export default function Cart() {
       </div>
 
       {/* Body */}
-      <div className="grid grid-cols-[1fr_300px] gap-[22px] items-start max-[900px]:grid-cols-1">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-4 md:gap-[22px] items-start">
         {/* Item list */}
         <div className="flex flex-col gap-2.5">
           {items.map((item) => (
             <div
               key={item.id}
-              className="grid grid-cols-[70px_1fr_auto_auto_auto] gap-3.5 items-center p-4 border border-line rounded-lg transition-[border-color,box-shadow] duration-[180ms] hover:border-secondary hover:shadow-[0_4px_14px_rgba(28,28,28,0.06)] max-[640px]:grid-cols-[60px_1fr] max-[640px]:grid-rows-[auto_auto]"
+              className="grid grid-cols-[60px_1fr] sm:grid-cols-[70px_1fr_auto_auto_auto] gap-3 sm:gap-3.5 items-start sm:items-center p-3 sm:p-4 border border-line rounded-lg transition-[border-color,box-shadow] duration-[180ms] hover:border-secondary hover:shadow-[0_4px_14px_rgba(28,28,28,0.06)]"
             >
               {item.image ? (
                 <img
@@ -63,7 +63,7 @@ export default function Cart() {
                 <div className="text-sm font-semibold text-primary mb-1 leading-[1.35]">{item.name}</div>
                 <div className="text-xs text-muted">Rp {Number(item.price).toLocaleString("id-ID")} / item</div>
               </div>
-              <div className="flex items-center gap-1.5 bg-page rounded-[6px] px-1.5 py-1 border border-line max-[640px]:col-start-2">
+              <div className="flex items-center gap-1.5 bg-page rounded-[6px] px-1.5 py-1 border border-line col-start-2 sm:col-auto">
                 <button
                   type="button"
                   className="w-7 h-7 border-0 bg-white rounded cursor-pointer text-base font-bold text-primary transition-colors duration-[120ms] hover:bg-cream"
@@ -80,12 +80,12 @@ export default function Cart() {
                   +
                 </button>
               </div>
-              <div className="text-sm font-bold text-primary whitespace-nowrap max-[640px]:col-start-2">
+              <div className="text-sm font-bold text-primary whitespace-nowrap col-start-2 sm:col-auto">
                 Rp {Number(item.price * item.qty).toLocaleString("id-ID")}
               </div>
               <button
                 type="button"
-                className="w-[30px] h-[30px] border-0 bg-red-50 text-red-700 rounded-full cursor-pointer text-lg leading-none transition-colors duration-[120ms] hover:bg-red-200 max-[640px]:col-start-2"
+                className="w-[30px] h-[30px] border-0 bg-red-50 text-red-700 rounded-full cursor-pointer text-lg leading-none transition-colors duration-[120ms] hover:bg-red-200 col-start-2 sm:col-auto justify-self-start"
                 onClick={() => removeFromCart(item.id)}
                 aria-label="Hapus item"
               >
@@ -96,7 +96,7 @@ export default function Cart() {
         </div>
 
         {/* Summary */}
-        <div className="bg-white border border-line rounded-[10px] p-[22px] sticky top-[100px]">
+        <div className="bg-white border border-line rounded-[10px] p-4 sm:p-[22px] md:sticky md:top-[90px]">
           <div className="text-sm font-extrabold text-primary mb-[18px] tracking-[-0.2px]">Ringkasan Pesanan</div>
           <div className="flex justify-between text-[13px] text-muted mb-2.5">
             <span>Subtotal ({items.reduce((s, i) => s + i.qty, 0)} item)</span>
