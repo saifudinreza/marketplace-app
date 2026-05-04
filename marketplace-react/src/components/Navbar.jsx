@@ -281,7 +281,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {!isAuthPage && (
+      {/* {!isAuthPage && (
         <div className="zf-cat-bar">
           <button
             type="button"
@@ -303,7 +303,7 @@ export default function Navbar() {
             </button>
           ))}
         </div>
-      )}
+      )} */}
     </nav>
   );
 }
