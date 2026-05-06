@@ -231,13 +231,13 @@ export default function Home() {
               return (
                 <button
                   type="button"
-                  className="flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent p-1 rounded-xl transition-all duration-[220ms] hover:-translate-y-0.5 hover:scale-[1.04] shrink-0 sm:shrink"
+                  className="flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent p-1 rounded-xl transition-all duration-[220ms] hover:-translate-y-0.5 hover:scale-[1.04] w-[64px] shrink-0 sm:w-auto sm:shrink"
                   onClick={() => handleCatClick(null)}
                 >
                   <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center transition-all duration-[220ms] ${isActive ? "bg-primary text-white shadow-[0_6px_16px_rgba(28,28,28,0.22)]" : `${cfg.bg} ${cfg.color}`}`}>
                     {cfg.icon}
                   </div>
-                  <span className={`text-[10px] text-center leading-[1.2] tracking-[0.1px] whitespace-nowrap sm:whitespace-normal ${isActive ? "font-extrabold text-primary" : "font-semibold text-muted"}`}>
+                  <span className={`text-[10px] text-center leading-[1.2] tracking-[0.1px] w-full ${isActive ? "font-extrabold text-primary" : "font-semibold text-muted"}`}>
                     Semua
                   </span>
                 </button>
@@ -251,13 +251,13 @@ export default function Home() {
                 <button
                   key={c.id}
                   type="button"
-                  className="flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent p-1 rounded-xl transition-all duration-[220ms] hover:-translate-y-0.5 hover:scale-[1.04] shrink-0 sm:shrink"
+                  className="flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent p-1 rounded-xl transition-all duration-[220ms] hover:-translate-y-0.5 hover:scale-[1.04] w-[64px] shrink-0 sm:w-auto sm:shrink"
                   onClick={() => handleCatClick(c.id)}
                 >
                   <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center transition-all duration-[220ms] ${isActive ? "bg-primary text-white shadow-[0_6px_16px_rgba(28,28,28,0.22)]" : `${cfg.bg} ${cfg.color}`}`}>
                     {cfg.icon}
                   </div>
-                  <span className={`text-[10px] text-center leading-[1.2] tracking-[0.1px] whitespace-nowrap sm:whitespace-normal ${isActive ? "font-extrabold text-primary" : "font-semibold text-muted"}`}>
+                  <span className={`text-[10px] text-center leading-[1.2] tracking-[0.1px] w-full ${isActive ? "font-extrabold text-primary" : "font-semibold text-muted"}`}>
                     {c.name}
                   </span>
                 </button>
