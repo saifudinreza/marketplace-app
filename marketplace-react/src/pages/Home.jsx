@@ -5,18 +5,6 @@ import ProductCard from "../components/ProductCard.jsx";
 import Pagination from "../components/Pagination.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
-// Emoji for inline text labels
-const CAT_ICONS = {
-  "Elektronik": "💻",
-  "Fashion": "👗",
-  "Makanan & Minuman": "🍔",
-  "Peralatan Rumah": "🏠",
-  "Olahraga": "⚽",
-  "Buku & Pendidikan": "📚",
-  "Kecantikan & Kesehatan": "💄",
-  "Otomotif": "🚗",
-};
-
 const IC = "w-[22px] h-[22px]";
 const SP = { fill: "none", stroke: "currentColor", strokeWidth: "1.8", strokeLinecap: "round", strokeLinejoin: "round" };
 
@@ -295,7 +283,7 @@ export default function Home() {
         <div className="flex justify-between items-center gap-3 mb-1.5 flex-wrap">
           <div className="text-[15px] font-extrabold text-primary flex items-center gap-2.5 tracking-[-0.2px]">
             <span className="bg-primary text-white px-2.5 py-[3px] rounded text-[10px] font-bold tracking-[0.5px] uppercase">FLASH SALE</span>
-            {search ? `Hasil "${search}"` : activeCatName ? `${CAT_ICONS[activeCatName] ?? ""} ${activeCatName}` : "Produk Terlaris"}
+            {search ? `Hasil "${search}"` : activeCatName ?? "Produk Terlaris"}
           </div>
           {user?.role === "seller" && (
             <Link
