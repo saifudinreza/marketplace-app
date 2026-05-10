@@ -4,7 +4,6 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useAddress } from "../context/AddressContext.jsx";
 
-// Fix Leaflet default marker icon in Vite
 const markerIcon = L.icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -14,9 +13,9 @@ const markerIcon = L.icon({
   shadowSize: [41, 41],
 });
 
-function MapUpdater({ position }) {
+function MapUpdater({ position, zoom }) {
   const map = useMap();
-  useEffect(() => { map.setView(position, 15, { animate: true }); }, [position, map]);
+  useEffect(() => { map.setView(position, zoom, { animate: true }); }, [position, zoom, map]);
   return null;
 }
 
@@ -39,7 +38,7 @@ function DraggableMarker({ position, onDrag }) {
   );
 }
 
-function useDebounce(val, delay = 450) {
+function useDebounce(val, delay = 500) {
   const [deb, setDeb] = useState(val);
   useEffect(() => {
     const t = setTimeout(() => setDeb(val), delay);
@@ -49,69 +48,155 @@ function useDebounce(val, delay = 450) {
 }
 
 const LABELS = [
-  { key: "Rumah",  emoji: "🏠" },
-  { key: "Kantor", emoji: "🏢" },
-  { key: "Kos",    emoji: "🛏️" },
-  { key: "Lainnya",emoji: "📌" },
+  { key: "Rumah",   emoji: "🏠" },
+  { key: "Kantor",  emoji: "🏢" },
+  { key: "Kos",     emoji: "🛏️" },
+  { key: "Lainnya", emoji: "📌" },
 ];
 
 const DEFAULT_POS = [-6.2088, 106.8456]; // Jakarta
 
+// Extract clean address parts from Nominatim address object
+function parseOsmAddress(a = {}, displayName = "") {
+  // Street: prefer road, fall back through other path types
+  const houseNo  = a.house_number ? `No. ${a.house_number}` : "";
+  const roadName = a.road || a.pedestrian || a.footway || a.path ||
+                   a.cycleway || a.residential || a.living_street || a.service || "";
+  const street   = [roadName, houseNo].filter(Boolean).join(" ");
+
+  // Neighbourhood: most specific sub-area
+  const area = a.suburb || a.quarter || a.neighbourhood || a.hamlet ||
+               a.village || a.locality || a.town_district || "";
+
+  // City / Regency
+  const city = a.city || a.municipality || a.town || a.regency ||
+               a.county || a.district || a.city_district || "";
+
+  // Province
+  const province = a.state || a.province || "";
+
+  // Postal code (from OSM data)
+  const postal = a.postcode || "";
+
+  // Full street+area as the "address line"
+  const addressLine = [street, area].filter(Boolean).join(", ")
+    || displayName.split(",").slice(0, 2).join(",").trim()
+    || "";
+
+  const cityLine = [city, province].filter(Boolean).join(", ");
+
+  return { addressLine, cityLine, postal };
+}
+
 export default function AddressModal() {
   const { modalOpen, setModalOpen, saveAddress } = useAddress();
 
-  const [step, setStep]             = useState(1);
-  const [searchQ, setSearchQ]       = useState("");
+  const [step, setStep]               = useState(1);
+  const [searchQ, setSearchQ]         = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [position, setPosition]     = useState(DEFAULT_POS);
-  const [geoAddress, setGeoAddress] = useState("");
-  const [geoCity, setGeoCity]       = useState("");
-  const [locating, setLocating]     = useState(false);
-  const [form, setForm]             = useState({
+  const [position, setPosition]       = useState(DEFAULT_POS);
+  const [mapZoom, setMapZoom]         = useState(15);
+  const [geoAddress, setGeoAddress]   = useState("");
+  const [geoCity, setGeoCity]         = useState("");
+  const [geoPostal, setGeoPostal]     = useState("");
+  const [geoRaw, setGeoRaw]           = useState("");   // full display_name reference
+  const [geoLoading, setGeoLoading]   = useState(false);
+  const [locating, setLocating]       = useState(false);
+  const [form, setForm]               = useState({
     label: "Rumah", name: "", phone: "", address: "", city: "", postal: "", notes: "",
   });
 
   const debouncedQ = useDebounce(searchQ);
 
   useEffect(() => {
-    if (modalOpen) { setStep(1); setSearchQ(""); setSuggestions([]); }
+    if (modalOpen) {
+      setStep(1); setSearchQ(""); setSuggestions([]);
+      setGeoAddress(""); setGeoCity(""); setGeoPostal(""); setGeoRaw("");
+    }
   }, [modalOpen]);
 
-  // Nominatim search
+  // Nominatim search — Indonesia-biased, with address details
   useEffect(() => {
     if (!debouncedQ || debouncedQ.length < 3) { setSuggestions([]); return; }
     setSearchLoading(true);
-    fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(debouncedQ)}&countrycodes=id&limit=6&addressdetails=1`,
-      { headers: { "Accept-Language": "id" } }
-    )
+    const params = new URLSearchParams({
+      format: "json",
+      q: debouncedQ,
+      countrycodes: "id",
+      limit: "7",
+      addressdetails: "1",
+      namedetails: "1",
+      "accept-language": "id",
+    });
+    fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+      headers: { "Accept-Language": "id" },
+    })
       .then((r) => r.json())
-      .then((d) => setSuggestions(d))
+      .then((d) => setSuggestions(Array.isArray(d) ? d : []))
       .catch(() => setSuggestions([]))
       .finally(() => setSearchLoading(false));
   }, [debouncedQ]);
 
+  // Reverse geocode with zoom=18 (building level) for maximum accuracy
   const reverseGeocode = useCallback(async ([lat, lon]) => {
+    setGeoLoading(true);
     try {
-      const r = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-        { headers: { "Accept-Language": "id" } }
-      );
+      const params = new URLSearchParams({
+        format: "json",
+        lat: String(lat),
+        lon: String(lon),
+        zoom: "18",         // building-level detail
+        addressdetails: "1",
+        "accept-language": "id",
+      });
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?${params}`, {
+        headers: { "Accept-Language": "id" },
+      });
       const d = await r.json();
-      const a = d.address || {};
-      const road    = a.road || a.street || a.pedestrian || "";
-      const suburb  = a.suburb || a.neighbourhood || a.village || "";
-      const city    = a.city || a.town || a.regency || a.county || "";
-      const state   = a.state || "";
-      setGeoAddress([road, suburb].filter(Boolean).join(", ") || d.display_name?.split(",")[0] || "");
-      setGeoCity([city, state].filter(Boolean).join(", "));
-    } catch { /* silent */ }
+      if (d.error) return;
+
+      const { addressLine, cityLine, postal } = parseOsmAddress(d.address, d.display_name);
+      setGeoAddress(addressLine);
+      setGeoCity(cityLine);
+      if (postal) setGeoPostal(postal);
+      setGeoRaw(d.display_name || "");
+    } catch { /* silent */ } finally {
+      setGeoLoading(false);
+    }
   }, []);
+
+  // Format suggestion label from address object
+  const formatSuggestion = (s) => {
+    const a = s.address || {};
+    const name = s.namedetails?.name || s.name || "";
+    const road = a.road || a.pedestrian || a.footway || "";
+    const area = a.suburb || a.neighbourhood || a.village || a.quarter || "";
+    const city = a.city || a.municipality || a.town || a.regency || a.county || "";
+    const state = a.state || "";
+
+    // Main line: name or road + area
+    const mainParts = [name || road, area].filter(Boolean);
+    const main = mainParts.join(", ") || (s.display_name || "").split(", ").slice(0, 2).join(", ");
+
+    // Sub line: city + state
+    const sub = [city, state].filter(Boolean).join(", ");
+
+    // Type label
+    const typeMap = {
+      amenity: "Tempat", building: "Gedung", highway: "Jalan",
+      residential: "Perumahan", suburb: "Kecamatan", city: "Kota",
+      administrative: "Wilayah", shop: "Toko", leisure: "Fasilitas",
+    };
+    const typeLabel = typeMap[s.class] || typeMap[s.type] || s.type || "";
+
+    return { main, sub, typeLabel };
+  };
 
   const handleSelectSuggestion = (s) => {
     const pos = [parseFloat(s.lat), parseFloat(s.lon)];
     setPosition(pos);
+    setMapZoom(17);
     reverseGeocode(pos);
     setStep(2);
   };
@@ -123,12 +208,13 @@ export default function AddressModal() {
       ({ coords }) => {
         const pos = [coords.latitude, coords.longitude];
         setPosition(pos);
+        setMapZoom(17);
         reverseGeocode(pos);
         setLocating(false);
         setStep(2);
       },
       () => setLocating(false),
-      { timeout: 10000 }
+      { timeout: 12000, enableHighAccuracy: true },
     );
   };
 
@@ -138,21 +224,26 @@ export default function AddressModal() {
   };
 
   const goStep3 = () => {
-    setForm((f) => ({ ...f, address: geoAddress, city: geoCity }));
+    setForm((f) => ({
+      ...f,
+      address: geoAddress || f.address,
+      city:    geoCity    || f.city,
+      postal:  geoPostal  || f.postal,
+    }));
     setStep(3);
   };
 
   const handleSave = () => {
     saveAddress({
-      label:    form.label,
-      name:     form.name,
-      phone:    form.phone,
-      address:  form.address,
-      city:     form.city,
-      postal:   form.postal,
-      notes:    form.notes,
-      lat:      position[0],
-      lng:      position[1],
+      label:        form.label,
+      name:         form.name,
+      phone:        form.phone,
+      address:      form.address,
+      city:         form.city,
+      postal:       form.postal,
+      notes:        form.notes,
+      lat:          position[0],
+      lng:          position[1],
       shortAddress: [form.address, form.city].filter(Boolean).join(", "),
     });
     setModalOpen(false);
@@ -185,72 +276,45 @@ export default function AddressModal() {
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
-        onClick={() => setModalOpen(false)}
-      />
+      <div className="absolute inset-0 bg-black/55 backdrop-blur-[2px]" onClick={() => setModalOpen(false)} />
 
-      {/* Modal */}
       <div className="relative bg-white rounded-[18px] shadow-[0_28px_70px_rgba(0,0,0,0.22)] w-full max-w-[460px] overflow-hidden flex flex-col max-h-[92vh]">
 
         {/* Header */}
         <div className="px-5 pt-5 pb-4 border-b border-line flex items-start gap-3">
           {step > 1 && (
-            <button
-              type="button"
-              onClick={() => setStep((s) => s - 1)}
-              className="mt-0.5 w-8 h-8 rounded-full bg-cream flex items-center justify-center cursor-pointer border-0 hover:bg-[#ede9e3] transition-colors shrink-0"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4">
-                <path d="m15 18-6-6 6-6"/>
-              </svg>
+            <button type="button" onClick={() => setStep((s) => s - 1)} className="mt-0.5 w-8 h-8 rounded-full bg-cream flex items-center justify-center cursor-pointer border-0 hover:bg-[#ede9e3] transition-colors shrink-0">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg>
             </button>
           )}
           <div className="flex-1">
-            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.8px] mb-0.5">
-              Langkah {step} dari 3
-            </p>
-            <h2 className="text-[17px] font-extrabold text-primary tracking-[-0.3px] leading-[1.25]">
-              {STEP_TITLES[step]}
-            </h2>
+            <p className="text-[10px] font-bold text-muted uppercase tracking-[0.8px] mb-0.5">Langkah {step} dari 3</p>
+            <h2 className="text-[17px] font-extrabold text-primary tracking-[-0.3px] leading-[1.25]">{STEP_TITLES[step]}</h2>
           </div>
-          <button
-            type="button"
-            onClick={() => setModalOpen(false)}
-            className="w-8 h-8 rounded-full bg-cream flex items-center justify-center cursor-pointer border-0 hover:bg-[#ede9e3] transition-colors shrink-0"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4">
-              <path d="M18 6 6 18M6 6l12 12"/>
-            </svg>
+          <button type="button" onClick={() => setModalOpen(false)} className="w-8 h-8 rounded-full bg-cream flex items-center justify-center cursor-pointer border-0 hover:bg-[#ede9e3] transition-colors shrink-0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
 
         {/* Step progress bar */}
         <div className="flex gap-1.5 px-5 py-2.5">
           {[1, 2, 3].map((s) => (
-            <div
-              key={s}
-              className={`h-[3px] flex-1 rounded-full transition-all duration-300 ${s <= step ? "bg-secondary" : "bg-line"}`}
-            />
+            <div key={s} className={`h-[3px] flex-1 rounded-full transition-all duration-300 ${s <= step ? "bg-secondary" : "bg-line"}`} />
           ))}
         </div>
 
-        {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto">
 
           {/* ── STEP 1: Search ── */}
           {step === 1 && (
             <div className="px-5 pb-5 pt-2">
-              {/* Search input */}
               <div className="relative mb-3">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] pointer-events-none">
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="m21 21-4.35-4.35"/>
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                 </svg>
                 <input
                   type="text"
-                  placeholder="Cari kecamatan, kota, atau nama jalan..."
+                  placeholder="Cari nama jalan, gedung, kecamatan, kota..."
                   value={searchQ}
                   onChange={(e) => setSearchQ(e.target.value)}
                   autoFocus
@@ -261,28 +325,20 @@ export default function AddressModal() {
                 )}
               </div>
 
-              {/* Use current location */}
               <button
                 type="button"
                 onClick={useCurrentLocation}
                 disabled={locating}
                 className="w-full flex items-center gap-2.5 px-4 py-3 rounded-[10px] border-[1.5px] border-secondary text-secondary text-[13px] font-bold cursor-pointer bg-transparent hover:bg-[#f5f0e8] transition-colors duration-150 disabled:opacity-60 mb-4"
               >
-                {locating ? (
-                  <div className="w-4 h-4 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <GpsIcon />
-                )}
+                {locating ? <div className="w-4 h-4 border-2 border-secondary border-t-transparent rounded-full animate-spin" /> : <GpsIcon />}
                 {locating ? "Mendeteksi lokasi GPS..." : "Gunakan Lokasi Saat Ini (GPS)"}
               </button>
 
-              {/* Suggestions */}
               {suggestions.length > 0 && (
                 <div className="border border-line rounded-[10px] overflow-hidden">
                   {suggestions.map((s, i) => {
-                    const parts = (s.display_name || "").split(", ");
-                    const main = parts.slice(0, 2).join(", ");
-                    const sub  = parts.slice(2, 5).join(", ");
+                    const { main, sub, typeLabel } = formatSuggestion(s);
                     return (
                       <button
                         key={i}
@@ -290,10 +346,11 @@ export default function AddressModal() {
                         onClick={() => handleSelectSuggestion(s)}
                         className="w-full text-left px-4 py-3 flex items-start gap-3 border-b border-line last:border-b-0 bg-white hover:bg-cream transition-colors cursor-pointer"
                       >
-                        <span className="text-secondary mt-0.5"><PinIcon /></span>
-                        <div className="min-w-0">
-                          <p className="text-[13px] font-semibold text-primary leading-[1.3] truncate">{main}</p>
-                          {sub && <p className="text-[11px] text-muted mt-0.5 truncate">{sub}</p>}
+                        <span className="text-secondary mt-0.5 shrink-0"><PinIcon /></span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-semibold text-primary leading-[1.35] line-clamp-1">{main}</p>
+                          {sub && <p className="text-[11px] text-muted mt-0.5 line-clamp-1">{sub}</p>}
+                          {typeLabel && <span className="inline-block mt-1 text-[10px] text-secondary bg-cream px-1.5 py-0.5 rounded font-semibold">{typeLabel}</span>}
                         </div>
                       </button>
                     );
@@ -308,7 +365,7 @@ export default function AddressModal() {
                 </div>
               )}
 
-              {searchQ.length < 3 && searchQ.length > 0 && (
+              {searchQ.length > 0 && searchQ.length < 3 && (
                 <p className="text-[12px] text-muted text-center">Ketik minimal 3 karakter untuk mencari...</p>
               )}
             </div>
@@ -317,42 +374,61 @@ export default function AddressModal() {
           {/* ── STEP 2: Map ── */}
           {step === 2 && (
             <div>
-              <div style={{ height: "290px" }}>
+              <div style={{ height: "290px" }} className="relative">
                 <MapContainer
                   center={position}
-                  zoom={15}
+                  zoom={mapZoom}
                   style={{ height: "100%", width: "100%" }}
                   scrollWheelZoom={true}
                 >
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='© <a href="https://www.openstreetmap.org">OpenStreetMap</a>'
+                    attribution='&copy; <a href="https://www.openstreetmap.org">OpenStreetMap</a>'
+                    maxZoom={19}
                   />
                   <DraggableMarker position={position} onDrag={handlePositionChange} />
-                  <MapUpdater position={position} />
+                  <MapUpdater position={position} zoom={mapZoom} />
                 </MapContainer>
               </div>
 
               <div className="px-5 pb-5 pt-4">
                 {/* Detected address chip */}
-                <div className="bg-cream rounded-[10px] p-3.5 flex items-start gap-2.5 mb-3 border border-[#e8dcc8]">
-                  <span className="text-secondary mt-0.5"><PinIcon /></span>
+                <div className="bg-cream rounded-[10px] p-3.5 flex items-start gap-2.5 mb-2 border border-[#e8dcc8]">
+                  <span className="text-secondary mt-0.5 shrink-0"><PinIcon /></span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-bold text-primary truncate">
-                      {geoAddress || "Menentukan alamat..."}
-                    </p>
-                    {geoCity && <p className="text-[11px] text-muted mt-0.5">{geoCity}</p>}
+                    {geoLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-3.5 h-3.5 border-2 border-secondary border-t-transparent rounded-full animate-spin shrink-0" />
+                        <p className="text-[12px] text-muted">Mendeteksi alamat...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-[13px] font-bold text-primary line-clamp-2 leading-[1.4]">
+                          {geoAddress || "Geser pin untuk mendeteksi alamat"}
+                        </p>
+                        {geoCity && <p className="text-[11px] text-muted mt-0.5">{geoCity}</p>}
+                        {geoPostal && <p className="text-[11px] text-secondary font-semibold mt-0.5">Kode Pos: {geoPostal}</p>}
+                      </>
+                    )}
                   </div>
                 </div>
 
+                {/* Full raw address for reference */}
+                {geoRaw && !geoLoading && (
+                  <p className="text-[10px] text-muted mb-3 px-1 leading-[1.5] line-clamp-2" title={geoRaw}>
+                    📍 {geoRaw}
+                  </p>
+                )}
+
                 <p className="text-[11px] text-muted text-center mb-3">
-                  Geser pin atau tap di peta untuk menyesuaikan lokasi
+                  Geser atau tap peta untuk memperhalus lokasi pinpoint
                 </p>
 
                 <button
                   type="button"
                   onClick={goStep3}
-                  className="w-full py-3 bg-primary text-white rounded-[10px] text-[13px] font-bold cursor-pointer border-0 hover:bg-secondary transition-colors"
+                  disabled={geoLoading}
+                  className="w-full py-3 bg-primary text-white rounded-[10px] text-[13px] font-bold cursor-pointer border-0 hover:bg-secondary transition-colors disabled:opacity-60"
                 >
                   Konfirmasi Lokasi Ini →
                 </button>
@@ -373,7 +449,6 @@ export default function AddressModal() {
           {/* ── STEP 3: Form Detail ── */}
           {step === 3 && (
             <div className="px-5 pb-3 pt-2 flex flex-col gap-4">
-              {/* Label chips */}
               <div>
                 <label className={lbl}>Label Alamat</label>
                 <div className="flex flex-wrap gap-2">
@@ -396,28 +471,19 @@ export default function AddressModal() {
 
               <div>
                 <label className={lbl}>Nama Penerima <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  placeholder="Nama lengkap penerima"
-                  value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  className={inp}
-                />
+                <input type="text" placeholder="Nama lengkap penerima" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={inp} />
               </div>
 
               <div>
                 <label className={lbl}>No. Telepon <span className="text-red-500">*</span></label>
-                <input
-                  type="tel"
-                  placeholder="Contoh: 08123456789"
-                  value={form.phone}
-                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                  className={inp}
-                />
+                <input type="tel" placeholder="Contoh: 08123456789" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className={inp} />
               </div>
 
               <div>
-                <label className={lbl}>Alamat Lengkap <span className="text-red-500">*</span></label>
+                <label className={lbl}>
+                  Alamat Lengkap <span className="text-red-500">*</span>
+                  <span className="ml-1 text-[9px] text-muted normal-case font-normal tracking-normal">(dari peta · bisa diedit)</span>
+                </label>
                 <textarea
                   rows={2}
                   placeholder="Nama jalan, nomor rumah, RT/RW, patokan"
@@ -430,24 +496,14 @@ export default function AddressModal() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={lbl}>Kota / Kecamatan</label>
-                  <input
-                    type="text"
-                    placeholder="Kota"
-                    value={form.city}
-                    onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-                    className={inp}
-                  />
+                  <input type="text" placeholder="Kota" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} className={inp} />
                 </div>
                 <div>
-                  <label className={lbl}>Kode Pos</label>
-                  <input
-                    type="text"
-                    placeholder="12345"
-                    maxLength={5}
-                    value={form.postal}
-                    onChange={(e) => setForm((f) => ({ ...f, postal: e.target.value }))}
-                    className={inp}
-                  />
+                  <label className={lbl}>
+                    Kode Pos
+                    {geoPostal && <span className="ml-1 text-secondary">✓ terdeteksi</span>}
+                  </label>
+                  <input type="text" placeholder="12345" maxLength={5} value={form.postal} onChange={(e) => setForm((f) => ({ ...f, postal: e.target.value }))} className={inp} />
                 </div>
               </div>
 
@@ -456,19 +512,13 @@ export default function AddressModal() {
                   Catatan untuk Kurir{" "}
                   <span className="text-[#bbb] normal-case font-normal tracking-normal">(opsional)</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="Contoh: Pagar biru, rumah pojok"
-                  value={form.notes}
-                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-                  className={inp}
-                />
+                <input type="text" placeholder="Contoh: Pagar biru, rumah pojok" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className={inp} />
               </div>
             </div>
           )}
         </div>
 
-        {/* Footer — only for step 3 */}
+        {/* Footer — step 3 */}
         {step === 3 && (
           <div className="px-5 py-4 border-t border-line bg-white">
             <button

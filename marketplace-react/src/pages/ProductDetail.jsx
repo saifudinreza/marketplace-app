@@ -325,13 +325,20 @@ export default function ProductDetail() {
                   <span className="w-9 text-center text-sm font-bold text-primary select-none">{qty}</span>
                   <button
                     type="button"
-                    className="w-9 h-9 flex items-center justify-center text-base font-bold text-primary bg-transparent border-0 cursor-pointer hover:bg-cream transition-colors duration-150"
-                    onClick={() => setQty((q) => q + 1)}
+                    className="w-9 h-9 flex items-center justify-center text-base font-bold text-primary bg-transparent border-0 cursor-pointer hover:bg-cream transition-colors duration-150 disabled:opacity-40"
+                    onClick={() => setQty((q) => Math.min(product.stock || 9999, q + 1))}
+                    disabled={product.stock !== undefined && qty >= product.stock}
                   >+</button>
                 </div>
                 {product.stock !== undefined && (
-                  <span className="text-[12px] text-muted">
-                    Stok: <span className="font-bold text-primary">{product.stock}</span> unit
+                  <span className={`text-[12px] font-bold ${
+                    product.stock === 0
+                      ? "text-red-600"
+                      : product.stock <= 10
+                        ? "text-orange-500"
+                        : "text-green-600"
+                  }`}>
+                    {product.stock === 0 ? "Stok habis" : `Stok: ${product.stock} unit`}
                   </span>
                 )}
               </div>

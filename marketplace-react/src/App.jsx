@@ -11,6 +11,8 @@ import MyProducts from "./pages/MyProducts.jsx";
 import ProductForm from "./pages/ProductForm.jsx";
 import Prototype from "./pages/Prototype.jsx";
 import Cart from "./pages/Cart.jsx";
+import Checkout from "./pages/Checkout.jsx";
+import OrderPending from "./pages/OrderPending.jsx";
 
 export default function App() {
   return (
@@ -30,6 +32,8 @@ export default function App() {
           <Route path="/products/:id/edit" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
 
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+          <Route path="/orders/:id" element={<ProtectedRoute><OrderPending /></ProtectedRoute>} />
           <Route path="/prototype" element={<Prototype />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

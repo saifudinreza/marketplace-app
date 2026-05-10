@@ -42,11 +42,12 @@ class ProductController extends Controller
         }
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'name'        => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'nullable|integer|min:0',
             'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
-            'file_url' => 'nullable|string',
+            'file_url'    => 'nullable|string',
         ]);
 
         $product = Product::create([
@@ -56,6 +57,7 @@ class ProductController extends Controller
             'slug'        => Str::slug($request->name) . '-' . time(),
             'description' => $request->description,
             'price'       => $request->price,
+            'stock'       => $request->stock ?? 100,
             'file_url'    => $request->file_url,
         ]);
 
@@ -92,6 +94,7 @@ class ProductController extends Controller
         $request->validate([
             'name'        => 'sometimes|string|max:255',
             'price'       => 'sometimes|numeric|min:0',
+            'stock'       => 'sometimes|integer|min:0',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
             'file_url'    => 'nullable|string',
@@ -100,9 +103,10 @@ class ProductController extends Controller
         $product->update($request->only([
             'name',
             'price',
+            'stock',
             'description',
             'category_id',
-            'file_url'
+            'file_url',
         ]));
 
         if ($request->has('name')) {

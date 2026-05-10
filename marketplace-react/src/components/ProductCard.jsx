@@ -33,6 +33,17 @@ export default function ProductCard({ product }) {
             {product.category.name}
           </span>
         )}
+        {product.stock !== undefined && product.stock !== null && (
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded self-start ${
+            product.stock === 0
+              ? "bg-red-50 text-red-600"
+              : product.stock <= 10
+                ? "bg-orange-50 text-orange-500"
+                : "bg-green-50 text-green-700"
+          }`}>
+            {product.stock === 0 ? "Habis" : `Stok: ${product.stock}`}
+          </span>
+        )}
       </div>
     </Link>
   );

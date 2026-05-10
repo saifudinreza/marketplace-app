@@ -10,7 +10,7 @@ export default function ProductForm() {
   const { user } = useAuth();
   const isEdit = Boolean(id);
 
-  const [form, setForm] = useState({ name: "", price: "", description: "", category_id: "", file_url: "" });
+  const [form, setForm] = useState({ name: "", price: "", stock: "100", description: "", category_id: "", file_url: "" });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
@@ -27,7 +27,7 @@ export default function ProductForm() {
       axiosClient.get(`/products/${id}`)
         .then((res) => {
           const p = res.data?.data ?? res.data;
-          setForm({ name: p.name ?? "", price: p.price ?? "", description: p.description ?? "", category_id: p.category_id ?? "", file_url: p.file_url ?? "" });
+          setForm({ name: p.name ?? "", price: p.price ?? "", stock: p.stock ?? "100", description: p.description ?? "", category_id: p.category_id ?? "", file_url: p.file_url ?? "" });
         })
         .catch(() => setError("Produk tidak ditemukan"))
         .finally(() => setFetching(false));
@@ -154,6 +154,16 @@ export default function ProductForm() {
                   />
                 </div>
                 {form.price && <span className="block text-xs text-muted mt-[5px]">= {formatPrice(form.price)}</span>}
+              </div>
+
+              <div className="mb-[18px]">
+                <label htmlFor="stock" className={labelClass}>Stok</label>
+                <input
+                  id="stock" name="stock" type="number" min="0"
+                  value={form.stock} onChange={handleChange} placeholder="100"
+                  className={inputClass}
+                />
+                <span className="block text-xs text-muted mt-[5px]">Jumlah stok yang tersedia (default: 100)</span>
               </div>
 
               <div className="mb-[18px]">

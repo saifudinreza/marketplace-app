@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,4 +40,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/categories/{category}',    [CategoryController::class, 'update']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
+    // Orders
+    Route::post('/orders',          [OrderController::class, 'store']);
+    Route::get('/orders/{order}',   [OrderController::class, 'show']);
+
 });
+
+// Midtrans webhook — tanpa auth (Midtrans yang memanggil)
+Route::post('/midtrans/notification', [OrderController::class, 'notification']);

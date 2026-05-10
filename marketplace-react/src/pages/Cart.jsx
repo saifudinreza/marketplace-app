@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 
 export default function Cart() {
+  const navigate = useNavigate();
   const { items, updateQty, removeFromCart, clearCart, total } = useCart();
 
   if (items.length === 0) {
@@ -113,6 +114,7 @@ export default function Cart() {
           </div>
           <button
             type="button"
+            onClick={() => navigate("/checkout")}
             className="w-full bg-primary text-white border-0 rounded-[6px] py-3.5 text-[13px] font-bold cursor-pointer mb-2.5 tracking-[0.5px] transition-[background,transform] duration-200 hover:bg-secondary hover:-translate-y-px"
           >
             Checkout Sekarang
