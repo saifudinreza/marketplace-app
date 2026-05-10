@@ -106,10 +106,12 @@ export default function Checkout() {
         state: { orderData: res.data.data },
       });
     } catch (err) {
-      const msg = err.response?.data?.message || err.response?.data?.errors
-        ? Object.values(err.response.data.errors ?? {})[0]?.[0]
-        : null;
-      setError(msg || "Gagal membuat order. Coba lagi.");
+      const data = err.response?.data;
+      const msg = data?.message
+        || (data?.errors ? Object.values(data.errors)[0]?.[0] : null)
+        || `Error ${err.response?.status || ""}: Gagal membuat order.`;
+      setError(msg);
+      console.error("Order error:", err.response?.status, data);
     } finally {
       setLoading(false);
     }
