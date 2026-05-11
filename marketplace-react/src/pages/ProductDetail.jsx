@@ -3,16 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useCart } from "../context/CartContext.jsx";
-import { useAddress } from "../context/AddressContext.jsx";
 import { useScaleIn, useFadeUp } from "../hooks/useAnime.js";
-
-const SHIPPING_OPTIONS = [
-  { id: "jne-reg",  carrier: "JNE",     logo: "🟡", service: "Reguler",  eta: "2-3 hari kerja",  price: 15000 },
-  { id: "jnt-exp",  carrier: "J&T",     logo: "🔴", service: "Express",  eta: "1-2 hari kerja",  price: 18000 },
-  { id: "sicepat",  carrier: "SiCepat", logo: "🟠", service: "BEST",     eta: "1-2 hari kerja",  price: 16000 },
-  { id: "jne-yes",  carrier: "JNE",     logo: "🟡", service: "YES",      eta: "Sampai besok",    price: 35000 },
-  { id: "anteraja", carrier: "AnterAja",logo: "🔵", service: "Reguler",  eta: "2-4 hari kerja",  price: 12000 },
-];
 
 const CATEGORY_ATTRS = {
   "Fashion": {
@@ -101,7 +92,6 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToCart } = useCart();
-  const { activeAddress, setModalOpen } = useAddress();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -113,7 +103,6 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [selectedCondition, setSelectedCondition] = useState(null);
-  const [selectedShipping, setSelectedShipping] = useState("jnt-exp");
   const [selectedWarranty, setSelectedWarranty] = useState(null);
 
   const cardRef = useScaleIn([loading, product?.id]);
@@ -147,6 +136,10 @@ export default function ProductDetail() {
     addToCart(product, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    navigate("/checkout", { state: { buyNow: { product, qty } } });
   };
 
   if (loading) return <div className="text-center py-[70px] text-muted">Memuat detail produk...</div>;
@@ -346,11 +339,23 @@ export default function ProductDetail() {
               <div className="flex gap-2.5 flex-wrap">
                 <button
                   type="button"
+                  onClick={handleBuyNow}
+                  disabled={product.stock === 0}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-[6px] border-0 text-[13px] font-bold cursor-pointer transition-all duration-200 bg-secondary text-white hover:bg-primary hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                  Beli Sekarang
+                </button>
+                <button
+                  type="button"
                   onClick={handleAddToCart}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-[6px] border-0 text-[13px] font-bold cursor-pointer transition-all duration-200 ${
+                  disabled={product.stock === 0}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-[6px] border text-[13px] font-bold cursor-pointer transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${
                     added
-                      ? "bg-green-600 text-white scale-[0.98]"
-                      : "bg-primary text-white hover:bg-secondary hover:-translate-y-px"
+                      ? "bg-green-600 border-green-600 text-white scale-[0.98]"
+                      : "bg-transparent border-line text-primary hover:border-secondary hover:text-secondary"
                   }`}
                 >
                   {added ? (
@@ -367,16 +372,10 @@ export default function ProductDetail() {
                         <line x1="3" y1="6" x2="21" y2="6" />
                         <path d="M16 10a4 4 0 0 1-8 0" />
                       </svg>
-                      Tambah ke Keranjang
+                      Tambah Keranjang
                     </>
                   )}
                 </button>
-                <Link
-                  to="/cart"
-                  className="px-5 py-2.5 rounded-[6px] border border-line text-[13px] font-bold no-underline text-primary transition-all duration-200 hover:border-secondary hover:text-secondary"
-                >
-                  Lihat Keranjang
-                </Link>
               </div>
             </div>
 
@@ -406,113 +405,6 @@ export default function ProductDetail() {
               </div>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* ── SHIPPING SECTION ── */}
-      <div className="bg-white rounded-[10px] shadow-[0_2px_24px_rgba(28,28,28,0.07)] border border-line mb-4 overflow-hidden">
-        <div className="px-6 py-4 border-b border-line flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-secondary">
-              <rect x="1" y="3" width="15" height="13" rx="1"/>
-              <path d="M16 8h4l3 3v5h-7V8z"/>
-              <circle cx="5.5" cy="18.5" r="2.5"/>
-              <circle cx="18.5" cy="18.5" r="2.5"/>
-            </svg>
-            <span className="text-[13px] font-extrabold text-primary">Pengiriman</span>
-          </div>
-        </div>
-
-        <div className="px-6 py-4">
-          {/* Delivery address */}
-          <div className="flex items-start gap-3 mb-4 pb-4 border-b border-line">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#8b6b4a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mt-0.5 shrink-0">
-              <path d="M20 10c0 6-8 13-8 13s-8-7-8-13a8 8 0 0 1 16 0Z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-muted font-bold uppercase tracking-[0.6px] mb-1">Dikirim ke</p>
-              {activeAddress ? (
-                <div>
-                  <p className="text-[13px] font-bold text-primary leading-[1.4]">
-                    {activeAddress.name && <span>{activeAddress.name} · </span>}
-                    {activeAddress.address || activeAddress.shortAddress}
-                  </p>
-                  {activeAddress.city && (
-                    <p className="text-[11px] text-muted mt-0.5">{activeAddress.city}{activeAddress.postal ? `, ${activeAddress.postal}` : ""}</p>
-                  )}
-                </div>
-              ) : (
-                <p className="text-[13px] text-muted">Belum ada alamat pengiriman</p>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              className="text-[11px] font-bold text-secondary bg-transparent border border-secondary rounded px-2.5 py-1 cursor-pointer hover:bg-secondary hover:text-white transition-all duration-150 shrink-0"
-            >
-              {activeAddress ? "Ubah" : "+ Tambah"}
-            </button>
-          </div>
-
-          {/* Shipping options */}
-          {activeAddress ? (
-            <div>
-              <p className="text-[11px] text-muted font-bold uppercase tracking-[0.6px] mb-3">Pilih Layanan Pengiriman</p>
-              <div className="flex flex-col gap-2">
-                {SHIPPING_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setSelectedShipping(opt.id)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-[8px] border cursor-pointer text-left transition-all duration-150 ${
-                      selectedShipping === opt.id
-                        ? "border-secondary bg-[#faf6ee] shadow-[0_0_0_2px_rgba(139,111,71,0.15)]"
-                        : "border-line bg-white hover:border-secondary hover:bg-cream"
-                    }`}
-                  >
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selectedShipping === opt.id ? "border-secondary" : "border-line"}`}>
-                      {selectedShipping === opt.id && (
-                        <div className="w-2 h-2 rounded-full bg-secondary" />
-                      )}
-                    </div>
-                    <span className="text-base shrink-0">{opt.logo}</span>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-[13px] font-bold text-primary">{opt.carrier}</span>
-                      <span className="text-[11px] text-muted ml-2">{opt.service}</span>
-                      <p className="text-[11px] text-muted mt-0.5">Estimasi tiba: <span className="font-semibold text-primary">{opt.eta}</span></p>
-                    </div>
-                    <span className="text-[13px] font-extrabold text-primary shrink-0">
-                      Rp {opt.price.toLocaleString("id-ID")}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              {selectedShipping && (() => {
-                const opt = SHIPPING_OPTIONS.find(o => o.id === selectedShipping);
-                return opt ? (
-                  <div className="mt-3 pt-3 border-t border-line flex items-center justify-between">
-                    <span className="text-[12px] text-muted">Total ongkos kirim</span>
-                    <span className="text-[15px] font-extrabold text-primary">
-                      Rp {opt.price.toLocaleString("id-ID")}
-                    </span>
-                  </div>
-                ) : null;
-              })()}
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-[13px] text-muted mb-3">Tambahkan alamat untuk melihat estimasi ongkir</p>
-              <button
-                type="button"
-                onClick={() => setModalOpen(true)}
-                className="px-5 py-2 bg-secondary text-white rounded-[8px] text-[12px] font-bold cursor-pointer border-0 hover:bg-primary transition-colors"
-              >
-                + Tambah Alamat
-              </button>
-            </div>
-          )}
         </div>
       </div>
 

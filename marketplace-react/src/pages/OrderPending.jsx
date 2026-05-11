@@ -60,6 +60,7 @@ export default function OrderPending() {
   const [snapToken, setSnapToken] = useState(location.state?.orderData?.snap_token ?? null);
   const [loadingOrder, setLoadingOrder] = useState(!location.state?.orderData);
   const [snapError, setSnapError] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState(location.state?.orderData?.status ?? null);
 
   const { hh, mm, ss, expired } = useCountdown(order?.payment_due_at);
 
@@ -99,10 +100,23 @@ export default function OrderPending() {
     }
     setSnapError("");
     window.snap.pay(snapToken, {
-      onSuccess: () => window.location.reload(),
-      onPending: () => {},
-      onError:   () => setSnapError("Pembayaran gagal. Coba lagi."),
-      onClose:   () => {},
+      onSuccess: () => {
+        setPaymentStatus("paid");
+        setSnapError("");
+      },
+      onPending: () => {
+        setPaymentStatus("pending");
+        setSnapError("Pembayaran sedang diproses. Silakan selesaikan pembayaran.");
+      },
+      onError: (result) => {
+        setPaymentStatus("failed");
+        setSnapError(result?.status_message || "Pembayaran gagal. Silakan coba lagi.");
+      },
+      onClose: () => {
+        if (paymentStatus !== "paid") {
+          setSnapError("Kamu menutup halaman pembayaran sebelum selesai.");
+        }
+      },
     });
   };
 
@@ -121,6 +135,7 @@ export default function OrderPending() {
 
   const isCod = order.payment_method === "cod";
   const methodLabel = PAYMENT_LABELS[order.payment_method] || order.payment_method;
+  const currentStatus = paymentStatus || order.status;
   const totalAmount = Number(order.total_amount ?? 0);
   const subtotal    = Number(order.subtotal ?? 0);
   const shipping    = Number(order.shipping_cost ?? 0);
@@ -130,10 +145,23 @@ export default function OrderPending() {
   return (
     <div className="max-w-[560px] mx-auto">
       {/* Status header */}
-      <div className={`rounded-[10px] p-6 mb-4 text-center ${isCod ? "bg-green-50 border border-green-200" : "bg-amber-50 border border-amber-200"}`}>
-        <div className="text-4xl mb-3">{isCod ? "✅" : "⏳"}</div>
+      <div className={`rounded-[10px] p-6 mb-4 text-center ${
+        currentStatus === "paid" ? "bg-green-50 border border-green-200"
+        : currentStatus === "failed" || currentStatus === "cancelled" ? "bg-red-50 border border-red-200"
+        : isCod ? "bg-green-50 border border-green-200"
+        : "bg-amber-50 border border-amber-200"
+      }`}>
+        <div className="text-4xl mb-3">
+          {currentStatus === "paid" ? "✅"
+           : currentStatus === "failed" || currentStatus === "cancelled" ? "❌"
+           : isCod ? "✅" : "⏳"}
+        </div>
         <h1 className="text-[18px] font-extrabold text-primary mb-1">
-          {isCod ? "Pesanan Dikonfirmasi!" : "Menunggu Pembayaran"}
+          {currentStatus === "paid" ? "Pembayaran Berhasil!"
+           : currentStatus === "failed" ? "Pembayaran Gagal"
+           : currentStatus === "cancelled" ? "Pesanan Dibatalkan"
+           : isCod ? "Pesanan Dikonfirmasi!"
+           : "Menunggu Pembayaran"}
         </h1>
         <p className="text-[12px] text-muted">
           No. Pesanan: <span className="font-bold text-primary">{order.order_number}</span>
@@ -169,24 +197,48 @@ export default function OrderPending() {
       )}
 
       {/* Payment method + pay button */}
-      {!isCod && (
+      {!isCod && currentStatus !== "paid" && currentStatus !== "cancelled" && (
         <div className="bg-white rounded-[10px] shadow-[0_2px_16px_rgba(28,28,28,0.07)] border border-line p-5 mb-4">
           <p className="text-[11px] font-bold text-muted uppercase tracking-[0.8px] mb-2">Metode Pembayaran</p>
           <p className="text-[14px] font-bold text-primary mb-4">{methodLabel}</p>
 
           {snapError && (
-            <p className="text-[12px] text-red-600 font-medium mb-3">{snapError}</p>
+            <div className={`px-3 py-2.5 rounded-md mb-3 text-[12px] font-medium border ${
+              currentStatus === "failed"
+                ? "bg-red-50 text-red-700 border-red-200"
+                : "bg-amber-50 text-amber-700 border-amber-200"
+            }`}>
+              {snapError}
+            </div>
           )}
 
-          {snapToken && !expired && (
+          {snapToken && !expired && currentStatus !== "failed" && (
             <button
               type="button"
               onClick={handlePay}
-              className="w-full bg-secondary text-white border-0 rounded-[6px] py-3.5 text-[13px] font-bold cursor-pointer tracking-[0.5px] transition-[background,transform] duration-200 hover:bg-primary hover:-translate-y-px"
+              className="w-full bg-secondary text-white border-0 rounded-md py-3.5 text-[13px] font-bold cursor-pointer tracking-[0.5px] transition-[background,transform] duration-200 hover:bg-primary hover:-translate-y-px"
             >
               Bayar Sekarang
             </button>
           )}
+
+          {currentStatus === "failed" && (
+            <button
+              type="button"
+              onClick={handlePay}
+              className="w-full bg-red-600 text-white border-0 rounded-md py-3.5 text-[13px] font-bold cursor-pointer tracking-[0.5px] transition-[background,transform] duration-200 hover:bg-red-700 hover:-translate-y-px"
+            >
+              Coba Bayar Lagi
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Success message */}
+      {currentStatus === "paid" && (
+        <div className="bg-green-50 border border-green-200 rounded-[10px] p-5 mb-4 text-center">
+          <p className="text-[14px] font-bold text-green-700">Terima kasih! Pesanan kamu sedang diproses.</p>
+          <p className="text-[12px] text-green-600 mt-1">Seller akan segera mengkonfirmasi dan mengirimkan pesananmu.</p>
         </div>
       )}
 

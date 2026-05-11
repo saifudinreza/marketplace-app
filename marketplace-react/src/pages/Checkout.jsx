@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { useAddress } from "../context/AddressContext.jsx";
 import axiosClient from "../api/axiosClient.js";
@@ -62,8 +62,15 @@ function SectionCard({ title, icon, children }) {
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { items, total: subtotal, clearCart } = useCart();
+  const location = useLocation();
+  const { items: cartItems, total: cartSubtotal, clearCart } = useCart();
   const { activeAddress, setModalOpen } = useAddress();
+
+  const buyNow = location.state?.buyNow ?? null;
+  const items = buyNow
+    ? [{ id: buyNow.product.id, name: buyNow.product.name, price: Number(buyNow.product.price), qty: buyNow.qty, image: buyNow.product.file_url ?? buyNow.product.image_url ?? null }]
+    : cartItems;
+  const subtotal = buyNow ? Number(buyNow.product.price) * buyNow.qty : cartSubtotal;
 
   const [selectedShipping, setSelectedShipping] = useState("jnt-exp");
   const [selectedPayment, setSelectedPayment] = useState("gopay");
@@ -101,7 +108,7 @@ export default function Checkout() {
         shipping_cost: shippingCost,
         payment_method: selectedPayment,
       });
-      clearCart();
+      if (!buyNow) clearCart();
       navigate(`/orders/${res.data.data.order_id}`, {
         state: { orderData: res.data.data },
       });
@@ -111,7 +118,6 @@ export default function Checkout() {
         || (data?.errors ? Object.values(data.errors)[0]?.[0] : null)
         || `Error ${err.response?.status || ""}: Gagal membuat order.`;
       setError(msg);
-      console.error("Order error:", err.response?.status, data);
     } finally {
       setLoading(false);
     }
@@ -120,10 +126,10 @@ export default function Checkout() {
   return (
     <div className="max-w-[960px] mx-auto">
       <button
-        onClick={() => navigate("/cart")}
+        onClick={() => navigate(buyNow ? -1 : "/cart")}
         className="mb-4 inline-block px-5 py-2.5 rounded-[6px] border border-line text-[13px] font-bold cursor-pointer transition-all duration-200 bg-transparent text-primary hover:bg-page hover:border-secondary hover:text-secondary"
       >
-        ← Kembali ke Keranjang
+        ← {buyNow ? "Kembali" : "Kembali ke Keranjang"}
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 items-start">
