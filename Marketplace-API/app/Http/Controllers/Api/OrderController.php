@@ -191,10 +191,10 @@ class OrderController extends Controller
     private function getMidtransPaymentMethods(string $method): array
     {
         $walletMap = [
-            'gopay' => ['gopay'],
-            'ovo'   => ['other_qris'],
-            'dana'  => ['other_qris'],
-            'qris'  => ['other_qris'],
+            'gopay'       => ['gopay'],
+            'ovo'         => ['other_qris'],
+            'dana'        => ['other_qris'],
+            'qris'        => ['other_qris'],
         ];
         $vaMap = [
             'va_bca'     => ['bca_va'],
