@@ -12,34 +12,64 @@ const SHIPPING_OPTIONS = [
   { id: "anteraja", carrier: "AnterAja", service: "Reguler",  eta: "2–4 hari kerja",  price: 12000 },
 ];
 
+const PAYMENT_LOGO_CONFIG = {
+  gopay:      { bg: "#00AED6", text: "GoPay",   color: "#fff" },
+  ovo:        { bg: "#4C3494", text: "OVO",      color: "#fff" },
+  dana:       { bg: "#118EEA", text: "DANA",     color: "#fff" },
+  qris:       { bg: "#1A1A1A", text: "QRIS",     color: "#fff" },
+  va_bca:     { bg: "#006DAE", text: "BCA",      color: "#fff" },
+  va_bni:     { bg: "#F37B20", text: "BNI",      color: "#fff" },
+  va_bri:     { bg: "#003E7E", text: "BRI",      color: "#fff" },
+  va_mandiri: { bg: "#002D62", text: "mandiri",  color: "#F7A600" },
+  va_cimb:    { bg: "#D71E28", text: "CIMB",     color: "#fff" },
+  va_permata: { bg: "#7B2580", text: "permata",  color: "#fff" },
+  va_bsi:     { bg: "#3D7A34", text: "BSI",      color: "#fff" },
+  va_btn:     { bg: "#003399", text: "BTN",      color: "#F26522" },
+  va_danamon: { bg: "#E4002B", text: "Danamon",  color: "#fff" },
+  cod:        { bg: "#4B5563", text: "COD",      color: "#fff" },
+};
+
+function PaymentLogo({ id }) {
+  const c = PAYMENT_LOGO_CONFIG[id];
+  if (!c) return null;
+  return (
+    <span
+      style={{ backgroundColor: c.bg, color: c.color }}
+      className="inline-flex items-center justify-center rounded-md px-2 py-1 text-[9px] font-extrabold tracking-wide min-w-[40px] h-[26px] shrink-0 leading-none"
+    >
+      {c.text}
+    </span>
+  );
+}
+
 const PAYMENT_METHODS = [
   {
     group: "Dompet Digital",
     items: [
-      { id: "gopay", label: "GoPay",  icon: "💚" },
-      { id: "ovo",   label: "OVO",    icon: "💜" },
-      { id: "dana",  label: "DANA",   icon: "💙" },
-      { id: "qris",  label: "QRIS",   icon: "⬛" },
+      { id: "gopay", label: "GoPay" },
+      { id: "ovo",   label: "OVO" },
+      { id: "dana",  label: "DANA" },
+      { id: "qris",  label: "QRIS" },
     ],
   },
   {
     group: "Transfer Virtual Account",
     items: [
-      { id: "va_bca",     label: "BCA",          icon: "🔵" },
-      { id: "va_bni",     label: "BNI",          icon: "🟠" },
-      { id: "va_bri",     label: "BRI",          icon: "🔵" },
-      { id: "va_mandiri", label: "Mandiri",       icon: "🟡" },
-      { id: "va_cimb",    label: "CIMB Niaga",   icon: "🔴" },
-      { id: "va_permata", label: "Permata",       icon: "🟣" },
-      { id: "va_bsi",     label: "BSI",           icon: "🟢" },
-      { id: "va_btn",     label: "BTN",           icon: "🟠" },
-      { id: "va_danamon", label: "Danamon",       icon: "🔴" },
+      { id: "va_bca",     label: "BCA" },
+      { id: "va_bni",     label: "BNI" },
+      { id: "va_bri",     label: "BRI" },
+      { id: "va_mandiri", label: "Mandiri" },
+      { id: "va_cimb",    label: "CIMB Niaga" },
+      { id: "va_permata", label: "Permata" },
+      { id: "va_bsi",     label: "BSI" },
+      { id: "va_btn",     label: "BTN" },
+      { id: "va_danamon", label: "Danamon" },
     ],
   },
   {
     group: "Lainnya",
     items: [
-      { id: "cod", label: "Bayar di Tempat (COD)", icon: "💵" },
+      { id: "cod", label: "Bayar di Tempat (COD)" },
     ],
   },
 ];
@@ -237,16 +267,16 @@ export default function Checkout() {
                         key={pm.id}
                         type="button"
                         onClick={() => setSelectedPayment(pm.id)}
-                        className={`flex items-center gap-2 px-3 py-2.5 rounded-[8px] border cursor-pointer text-left transition-all duration-150 ${
+                        className={`flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] border cursor-pointer text-left transition-all duration-150 ${
                           selectedPayment === pm.id
                             ? "border-secondary bg-[#faf6ee] shadow-[0_0_0_2px_rgba(139,111,71,0.15)]"
                             : "border-line bg-white hover:border-secondary hover:bg-cream"
                         }`}
                       >
-                        <span className="text-base shrink-0">{pm.icon}</span>
-                        <span className="text-[12px] font-bold text-primary leading-tight">{pm.label}</span>
+                        <PaymentLogo id={pm.id} />
+                        <span className="text-[12px] font-bold text-primary leading-tight flex-1">{pm.label}</span>
                         {selectedPayment === pm.id && (
-                          <svg className="ml-auto w-3.5 h-3.5 text-secondary shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                          <svg className="w-3.5 h-3.5 text-secondary shrink-0" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         )}
