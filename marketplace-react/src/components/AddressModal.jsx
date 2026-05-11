@@ -220,8 +220,14 @@ export default function AddressModal() {
       },
       (err) => {
         setLocating(false);
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         if (err.code === 1) {
-          setGeoError("Izin lokasi ditolak. Klik ikon gembok/info di address bar browser, lalu aktifkan izin Lokasi.");
+          if (isIOS || isSafari) {
+            setGeoError("Izin lokasi ditolak. Buka Pengaturan iPhone → Privasi & Keamanan → Layanan Lokasi → Safari → pilih 'Saat Menggunakan App', lalu coba lagi.");
+          } else {
+            setGeoError("Izin lokasi ditolak. Klik ikon kunci 🔒 di address bar → Izin situs → Lokasi → Izinkan, lalu refresh.");
+          }
         } else if (err.code === 2) {
           setGeoError("Lokasi tidak tersedia. Pastikan GPS perangkat kamu aktif.");
         } else {
