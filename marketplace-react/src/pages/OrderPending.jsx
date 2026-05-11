@@ -170,6 +170,32 @@ export default function OrderPending() {
         </p>
       </div>
 
+      {/* Alamat pengiriman — tampil khusus COD */}
+      {isCod && order.shipping_address && (
+        <div className="bg-white rounded-[10px] shadow-[0_2px_16px_rgba(28,28,28,0.07)] border border-line p-5 mb-4">
+          <p className="text-[11px] font-bold text-muted uppercase tracking-[0.8px] mb-3">Alamat Pengiriman</p>
+          <div className="flex items-start gap-3">
+            <svg className="w-4 h-4 text-secondary shrink-0 mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            <div className="flex-1 min-w-0">
+              {order.shipping_address.name && (
+                <p className="text-[13px] font-extrabold text-primary mb-0.5">{order.shipping_address.name}</p>
+              )}
+              <p className="text-[13px] text-primary leading-[1.5]">
+                {order.shipping_address.address || order.shipping_address.shortAddress}
+              </p>
+              {order.shipping_address.city && (
+                <p className="text-[12px] text-muted mt-0.5">
+                  {order.shipping_address.city}
+                  {order.shipping_address.postal ? `, ${order.shipping_address.postal}` : ""}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Countdown */}
       {!isCod && (
         <div className="bg-white rounded-[10px] shadow-[0_2px_16px_rgba(28,28,28,0.07)] border border-line p-5 mb-4 text-center">
