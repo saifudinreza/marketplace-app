@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-lea
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useAddress } from "../context/AddressContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const markerIcon = L.icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -90,6 +91,7 @@ function parseOsmAddress(a = {}, displayName = "") {
 
 export default function AddressModal() {
   const { modalOpen, setModalOpen, saveAddress } = useAddress();
+  const { user } = useAuth();
 
   const [step, setStep]               = useState(1);
   const [searchQ, setSearchQ]         = useState("");
@@ -114,8 +116,10 @@ export default function AddressModal() {
     if (modalOpen) {
       setStep(1); setSearchQ(""); setSuggestions([]);
       setGeoAddress(""); setGeoCity(""); setGeoPostal(""); setGeoRaw("");
+      setGeoError("");
+      setForm({ label: "Rumah", name: user?.name ?? "", phone: "", address: "", city: "", postal: "", notes: "" });
     }
-  }, [modalOpen]);
+  }, [modalOpen, user?.name]);
 
   // Nominatim search — Indonesia-biased, with address details
   useEffect(() => {
@@ -474,6 +478,19 @@ export default function AddressModal() {
           {/* ── STEP 3: Form Detail ── */}
           {step === 3 && (
             <div className="px-5 pb-3 pt-2 flex flex-col gap-4">
+
+              {/* Banner auto-fill */}
+              {geoAddress && (
+                <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-[10px] bg-green-50 border border-green-200">
+                  <svg className="w-4 h-4 text-green-600 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                  </svg>
+                  <p className="text-[12px] text-green-700 leading-[1.5]">
+                    Alamat sudah terisi otomatis dari peta. Cukup isi <span className="font-bold">No. Telepon</span> dan simpan.
+                  </p>
+                </div>
+              )}
+
               <div>
                 <label className={lbl}>Label Alamat</label>
                 <div className="flex flex-wrap gap-2">
@@ -501,7 +518,17 @@ export default function AddressModal() {
 
               <div>
                 <label className={lbl}>No. Telepon <span className="text-red-500">*</span></label>
-                <input type="tel" placeholder="Contoh: 08123456789" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className={inp} />
+                <input
+                  type="tel"
+                  placeholder="Contoh: 08123456789"
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  autoFocus={!!geoAddress}
+                  className={`${inp} ${!form.phone && geoAddress ? "border-amber-400 focus:border-secondary" : ""}`}
+                />
+                {!form.phone && geoAddress && (
+                  <p className="text-[11px] text-amber-600 mt-1">Isi nomor HP untuk melanjutkan</p>
+                )}
               </div>
 
               <div>
