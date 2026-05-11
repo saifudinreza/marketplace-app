@@ -103,6 +103,7 @@ export default function AddressModal() {
   const [geoRaw, setGeoRaw]           = useState("");   // full display_name reference
   const [geoLoading, setGeoLoading]   = useState(false);
   const [locating, setLocating]       = useState(false);
+  const [geoError, setGeoError]       = useState("");
   const [form, setForm]               = useState({
     label: "Rumah", name: "", phone: "", address: "", city: "", postal: "", notes: "",
   });
@@ -202,7 +203,11 @@ export default function AddressModal() {
   };
 
   const useCurrentLocation = () => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setGeoError("Browser kamu tidak mendukung GPS.");
+      return;
+    }
+    setGeoError("");
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
@@ -213,7 +218,16 @@ export default function AddressModal() {
         setLocating(false);
         setStep(2);
       },
-      () => setLocating(false),
+      (err) => {
+        setLocating(false);
+        if (err.code === 1) {
+          setGeoError("Izin lokasi ditolak. Klik ikon gembok/info di address bar browser, lalu aktifkan izin Lokasi.");
+        } else if (err.code === 2) {
+          setGeoError("Lokasi tidak tersedia. Pastikan GPS perangkat kamu aktif.");
+        } else {
+          setGeoError("Gagal mendapatkan lokasi. Coba lagi.");
+        }
+      },
       { timeout: 12000, enableHighAccuracy: true },
     );
   };
@@ -329,11 +343,16 @@ export default function AddressModal() {
                 type="button"
                 onClick={useCurrentLocation}
                 disabled={locating}
-                className="w-full flex items-center gap-2.5 px-4 py-3 rounded-[10px] border-[1.5px] border-secondary text-secondary text-[13px] font-bold cursor-pointer bg-transparent hover:bg-[#f5f0e8] transition-colors duration-150 disabled:opacity-60 mb-4"
+                className="w-full flex items-center gap-2.5 px-4 py-3 rounded-[10px] border-[1.5px] border-secondary text-secondary text-[13px] font-bold cursor-pointer bg-transparent hover:bg-[#f5f0e8] transition-colors duration-150 disabled:opacity-60 mb-2"
               >
                 {locating ? <div className="w-4 h-4 border-2 border-secondary border-t-transparent rounded-full animate-spin" /> : <GpsIcon />}
                 {locating ? "Mendeteksi lokasi GPS..." : "Gunakan Lokasi Saat Ini (GPS)"}
               </button>
+              {geoError && (
+                <div className="mb-4 px-3 py-2.5 rounded-[8px] bg-red-50 border border-red-200 text-[12px] text-red-700 leading-[1.5]">
+                  {geoError}
+                </div>
+              )}
 
               {suggestions.length > 0 && (
                 <div className="border border-line rounded-[10px] overflow-hidden">
