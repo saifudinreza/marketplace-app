@@ -139,7 +139,7 @@ export default function Checkout() {
       });
       if (!buyNow) clearCart();
       navigate(`/orders/${res.data.data.order_id}`, {
-        state: { orderData: res.data.data },
+        state: { orderData: { ...res.data.data, shipping_address: activeAddress } },
       });
     } catch (err) {
       const data = err.response?.data;
