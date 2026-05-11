@@ -37,6 +37,12 @@ const PAYMENT_METHODS = [
     ],
   },
   {
+    group: "Kartu",
+    items: [
+      { id: "credit_card", label: "Credit Card", icon: "💳" },
+    ],
+  },
+  {
     group: "Lainnya",
     items: [
       { id: "cod", label: "Bayar di Tempat (COD)", icon: "💵" },
