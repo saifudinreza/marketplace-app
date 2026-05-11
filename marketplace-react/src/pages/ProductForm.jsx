@@ -127,7 +127,7 @@ export default function ProductForm() {
               ) : null}
               {!previewImg && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-cream text-muted text-[13px]">
-                  <span className="text-[32px]">ðŸ“·</span>
+                  <span className="text-[32px]">📷</span>
                   <p>Preview gambar muncul di sini</p>
                 </div>
               )}
@@ -167,7 +167,7 @@ export default function ProductForm() {
           <div className="bg-white rounded-[10px] shadow-[0_2px_24px_rgba(28,28,28,0.07)] p-5 sm:p-[30px] border border-line">
             <div className="flex items-center gap-3.5 mb-[26px] pb-[22px] border-b border-line">
               <div className="text-[32px] shrink-0">
-                {isEdit ? "âœï¸" : "ðŸ“¦"}
+                {isEdit ? "✏️" : "📦"}
               </div>
               <div>
                 <h2 className="text-xl font-extrabold tracking-[-0.3px] mb-0.5">
