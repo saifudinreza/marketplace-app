@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams, useLocation, Link } from "react-router-dom";
+import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient.js";
 
 const PAYMENT_LABELS = {
@@ -54,6 +54,7 @@ function TimeBox({ val, label }) {
 export default function OrderPending() {
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const snapLoaded = useRef(false);
 
   const [order, setOrder] = useState(location.state?.orderData ?? null);
@@ -103,6 +104,7 @@ export default function OrderPending() {
       onSuccess: () => {
         setPaymentStatus("paid");
         setSnapError("");
+        navigate("/");
       },
       onPending: () => {
         setPaymentStatus("pending");
