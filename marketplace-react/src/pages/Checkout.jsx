@@ -12,33 +12,31 @@ const SHIPPING_OPTIONS = [
   { id: "anteraja", carrier: "AnterAja", service: "Reguler",  eta: "2–4 hari kerja",  price: 12000 },
 ];
 
-const GOPAY_B64 = "data:image/png;base64,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";
-
-const PAYMENT_FALLBACK = {
-  gopay: { bg: "#00AED6", text: "GoPay" }, ovo: { bg: "#4C3494", text: "OVO" },
-  dana: { bg: "#118EEA", text: "DANA" }, qris: { bg: "#1A1A1A", text: "QRIS" },
-  va_bca: { bg: "#006DAE", text: "BCA" }, va_bni: { bg: "#F37B20", text: "BNI" },
-  va_bri: { bg: "#003E7E", text: "BRI" }, va_mandiri: { bg: "#002D62", text: "mandiri" },
-  va_cimb: { bg: "#D71E28", text: "CIMB" }, va_permata: { bg: "#7B2580", text: "permata" },
-  va_bsi: { bg: "#3D7A34", text: "BSI" }, va_btn: { bg: "#003399", text: "BTN" },
-  va_danamon: { bg: "#E4002B", text: "Danamon" }, cod: { bg: "#4B5563", text: "COD" },
+const PAYMENT_LOGO_SRCS = {
+  gopay:      "/logo payment/gopay.png",
+  ovo:        "/logo payment/ovo.jpeg",
+  dana:       "/logo payment/dana.png",
+  qris:       "/logo payment/qris.png",
+  va_bca:     "/logo payment/bca.png",
+  va_bni:     "/logo payment/bni.png",
+  va_bri:     "/logo payment/bri.png",
+  va_mandiri: "/logo payment/mandiri.png",
+  va_cimb:    "/logo payment/chimb niaga.jpeg",
+  va_permata: "/logo payment/permata bank.png",
+  va_bsi:     "/logo payment/bsi.png",
+  va_btn:     "/logo payment/btn.png",
+  va_danamon: "/logo payment/danamon.png",
+  cod:        "/logo payment/cod.png",
 };
 
 function PaymentLogo({ id }) {
-  const src = id === "gopay" ? GOPAY_B64 : `/payment-logos/${id}.png`;
-  const fb = PAYMENT_FALLBACK[id];
+  const src = PAYMENT_LOGO_SRCS[id];
+  if (!src) return null;
   return (
     <img
       src={src}
       alt={id}
-      className="h-9 w-auto shrink-0 object-contain rounded"
-      onError={(e) => {
-        if (!fb) return;
-        e.target.replaceWith(Object.assign(document.createElement("span"), {
-          textContent: fb.text,
-          style: `background:${fb.bg};color:#fff;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:900;letter-spacing:0.5px;white-space:nowrap`,
-        }));
-      }}
+      className="h-8 w-auto max-w-[72px] shrink-0 object-contain"
     />
   );
 }
