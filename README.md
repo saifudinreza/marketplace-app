@@ -24,9 +24,10 @@ Aplikasi marketplace full-stack dengan fitur jual beli produk, sistem order deng
 
 ```
 ┌─────────────────────────┐        HTTPS         ┌──────────────────────────┐
-│   FRONTEND (Vercel)     │ ──────────────────→  │   BACKEND (VPS)          │
-│   React 19 + Vite       │   Cloudflare Tunnel   │   Laravel 13 + Sanctum   │
-└─────────────────────────┘                       └──────────────────────────┘
+│   FRONTEND (Vercel)     │ ──────────────────→  │   BACKEND (Railway)      │
+│   React 19 + Vite       │                       │   Laravel 13 + Sanctum   │
+└─────────────────────────┘                       │   Docker Container       │
+                                                  └──────────────────────────┘
                                                            │
                                                            ▼
                                                   ┌──────────────────┐
@@ -68,8 +69,8 @@ Aplikasi marketplace full-stack dengan fitur jual beli produk, sistem order deng
 
 ### Deployment
 - **Vercel** — hosting frontend (HTTPS otomatis)
-- **VPS (Ubuntu 22.04)** — hosting backend
-- **Cloudflare Tunnel** — HTTPS bridge ke VPS
+- **Railway** — hosting backend (Docker container)
+- **MySQL** — database di Railway
 
 ---
 
@@ -290,14 +291,15 @@ php artisan serve
 3. Set Root Directory ke `marketplace-react`
 4. Set environment variable `VITE_API_URL` ke URL backend
 
-### Backend (VPS)
-1. Upload file ke `/var/www/student05/`
-2. Konfigurasi `.env` dengan kredensial database dan Midtrans
-3. Jalankan `php artisan migrate` dan `php artisan db:seed`
-4. Aktifkan Cloudflare Tunnel untuk HTTPS:
-   ```bash
-   ./cloudflared tunnel --url http://38.47.180.195
-   ```
+### Backend (Railway)
+1. Push ke GitHub
+2. Buat project baru di Railway → deploy dari repo
+3. Tambahkan service **MySQL** di Railway
+4. Set environment variables di Railway:
+   - `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (dari MySQL service)
+   - `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`
+   - `APP_KEY`, `APP_URL`
+5. Railway otomatis build dari `Dockerfile` dan jalankan migrasi via `CMD` di Dockerfile
 
 ---
 
